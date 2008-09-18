@@ -1,5 +1,10 @@
-Sep 27, 2008 - John Schember <john@nachtimwald.com>
+Sep 18, 2008 - John Schember <john@nachtimwald.com>
 
-* 1.0 Release
+* 1.0.1 Release.
+* Fixed segmentation fault when not connected to the internet.
 
+
+Sep 17, 2008 - John Schember <john@nachtimwald.com>
+
+* 1.0 Release.
 
