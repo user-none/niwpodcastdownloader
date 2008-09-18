@@ -1,0 +1,79 @@
+*** About
+
+niwpodcastdownloader - Your favorite casts at the ready.
+
+
+*** Technical
+
+See INSTALL for requirements, build and install instructions.
+
+See STRUCTURE for configuation options and the design of the application.
+
+See FAQ for usage tips.
+
+
+*** Command Line Options
+
+-help
+    Show this help message
+-version
+    Show the version of this application
+-init
+    Init mode. Mark all episodes as downloading without downloading any.
+-write_config
+    Write the default config to disk. This will over write any existing
+    configuration settings.
+-episodes_db    <FILE>
+    The episodes database to use.
+-save_location    <PATH>
+    The locaction to save downloaded episodes.
+-threads    <NUMBER>
+    Number of simultaneous downloads.
+-recent    <NUMBER>
+    Maximum number of recent episodes to download. 0 for all recent episodes.
+-min_free_space    <NUMBER>
+    Minimum amount of free disk space that must be free in order to start a
+    download. This amount is in KB.
+-listings_file    <FILE>
+    XML listing of podcasts to download.
+
+
+*** Config
+
+paths/podcast_save_location = The directory to save podcasts in.
+paths/podcast_xml_file = The xml file containing a list of podcasts to
+    download.
+paths/podcast_episode_db = The location and filename to save a list of
+    completed downloads in.
+advanced/thread_count = The maximum number of threads to use for downloading.
+    The minimum is 1. Any number under 1 will be ignored.
+advanced/recent_episode_count = The number of most recent episodes to download.
+    0 to download all recent episodes.
+advanced/minimum_free_space = The minimum amount of diskspace that must be free
+    to start a new download. Use any number less than 0 to disable.
+
+
+*** Podcasts Listing File
+
+Sample:
+<podcasts>
+    <item>
+        <name>Daily Wiz Giz</name>
+        <category>Audio</category>
+        <url>http://leoville.tv/podcasts/dgw.xml</url>
+    </item>
+    <item>
+        <name>Mac Murphy Pi</name>
+        <init />
+        <url>http://feeds.feedburner.com/MackMurphyPi</url>
+    </item>
+</podcasts>
+
+Requried in <item>:
+    * <name></name>
+    * <url></url>
+Optional:
+    * <category></category>
+    * <init />
+
+<init /> will mark all episodes as downloaded without downloading any.
