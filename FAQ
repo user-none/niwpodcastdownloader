@@ -1,0 +1,52 @@
+Q: The application runs and then exits when finished. How do I have it check
+   for new episodes and download them regularly?
+A: Use cron or another daemon to execute scheduled commands.
+   Here is an example for cron to run everday at 3 AM:
+
+    $ crontab -e
+    SHELL=/bin/bash
+    PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+    HOME=/home/user
+    # m h  dom mon dow   command
+    0 3 * * * pgrep niw-podcast-downloader || niw-podcast-downloader 2> $HOME/.niw-podcast-downloader/errors.txt
+
+
+Q: How do I have all episodes for all podcasts marked as downloaded? For
+   instance, I'm moving from one podcast downloader to this one.
+A: Use the --init command line option.
+
+
+Q: I've added a new podcast to my podcasts.xml file. How do I keep from
+   downloading every episode?
+A: Set the <init> tag in the item in the podcasts.xml file. Run the application
+   then remove the <init> tag. The <init> tag will set the specific podcast
+   to init mode where it will not download but mark all episodes as downloaded.
+
+
+Q: When would it be necessary to disable platform specific functionality?
+A: When using a supported platform that does not support the features.
+   For Example: on Linux, OS X, FreeBSD and other Unix, the statvfs function
+   from sys/statvfs.h is used to determine the free disk space. If this
+   funciton is unavailable the platform specific code will not work correctly
+   (if it even compiles). Thus, on some systems disabling this code may be
+   requried.
+
+
+Q: If the platform specific code is platform specific, than why would it be
+   enabled on a platform that doesn't really support it?
+A: The platform checks are fairly stupid. They just check for the platform type
+   not the specific platform or version.
+
+
+Q: Which platforms does the platform specific code check for and what versions
+   work with it?
+A: Checks:
+     * Unix
+     * Window
+   Known to work:
+     * Linux
+     * Window >= 2000 Professional
+   Should work:
+     * Other Unix
+   Please notify the author if you find a Unix system (not listed) that the
+   platform specific codes works or doesn't work on.

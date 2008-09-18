@@ -1,0 +1,103 @@
+*** About
+
+This is a non-exhaustive reference for contributing to this project. When in
+doubt refer to the existing code. If different pieces of code are written
+using different formats use your better judgment and please make a note of
+it if you submit a patch.
+
+
+*** Contact
+
+Patches, suggestions, and comments can submitted to the project page or sent
+to the active author(s) directly.
+
+
+*** Platform Indepence
+
+No platform specific code will be accepted. This is a platform independent
+project and is designed to run on any platform supported by Qt.
+
+
+*** Patches
+
+User standard unified diffs.
+
+    Example:
+        diff -aur old.txt new.txt
+
+
+
+*** Coding Style
+
+Use four spaces instead of tabs. Do not use tabs in any submitted patches.
+
+
+Opening curly brackets for if, else, Q_FOREACH, switch, for, and enum
+statements should start on the same line as the statement. Unless the statement
+spans multiple lines. In which case the opening curly bracket should start on
+the next line alone. Multi-Line statments should also be intented on the extra
+lines with any operators at the beginning of the new line of possible.
+
+Example:
+    if (testMe() == “yes”) {
+    }
+
+Example:
+    if (reallyReallyReallyReallyReallyReallyReallyReallyReallyLongTestMe()
+        == “yes”)
+    {
+    }
+
+
+Do not use foreach. Use Q_FOREACH.
+Do not user forever. Use Q_FOREVER.
+Use Q_ constructs when avaliable. This is to minimize collisions with
+constructs in other libs that could be brought in later.
+
+
+Do not use stl or boost. This is a Qt application.
+
+
+Function names should use use lowerCamelCase.
+
+Example:
+    bool function();
+    void testMe();
+
+
+Class names should use UpperCamelCase. Note plugins can break this when
+appropriate (iCalExport).
+
+    Example:
+        class Test
+        class TestClass
+
+Variables should use lowerCamelCase. Class level variables should be prefixed
+with m_.
+
+    Example:
+        QString testString;
+        QString m_testString;
+
+Class level variables should never be set public. Use a getter and setter
+function to instead.
+
+
+Lines should not surpass 79 characters. New lines should be indented.
+Preferably broken at ., ->, or <<. Place them at the beginning of the new line.
+
+Example:
+    this->ThisIsAReallyReallyReallyReallyReallyLong()->FunctionThatDemonstartes
+        ->This();
+
+
+Use Java Doc style comments for functions and classes.
+
+    Example:    
+        /**
+         * Short description.
+         * Long description (optional).
+         * @param paramName description
+         * @return description
+         * @see related functions
+         */
