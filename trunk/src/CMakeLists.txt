@@ -46,3 +46,7 @@ QT4_WRAP_CPP(SRC_MOC_CPP ${SRC_MOC_HEADERS})
 
 ADD_EXECUTABLE(niw-podcast-downloader ${SRC_MOC_CPP} ${SRC_CPP})
 TARGET_LINK_LIBRARIES(niw-podcast-downloader ${QT_LIBRARIES})
+
+INSTALL(TARGETS niw-podcast-downloader
+    RUNTIME DESTINATION bin
+)
