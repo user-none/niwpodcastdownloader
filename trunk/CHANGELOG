@@ -1,5 +1,7 @@
 Sep 19, 2008 - John Schember <john@nachtimwald.com>
 
+* 1.0.2 Release.
+* Better checking of errors when finished in DownloadItem.
 * Verbose mode.
 * Remove debug messages that should not have been committed.
 * Replace QCoreApplication::quit() with exit() so application terminates
