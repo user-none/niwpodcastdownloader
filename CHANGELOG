@@ -1,3 +1,8 @@
+Sep 19, 2008 - John Schember <john@nachtimwald.com>
+
+* Create containing directory of episodes.db if it doesn't exist.
+
+
 Sep 18, 2008 - John Schember <john@nachtimwald.com>
 
 * Install target in build system.
