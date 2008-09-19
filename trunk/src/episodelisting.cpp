@@ -18,6 +18,7 @@
  *   <http://www.gnu.org/licenses/>.                                         *
  *****************************************************************************/
 
+#include <QDir>
 #include <QFileInfo>
 #include <QSqlError>
 #include <QUuid>
@@ -49,14 +50,23 @@ bool EpisodeListing::open(const QString &file)
     // If the db doesn't exit we will need to create the default table later.
     bool newFile = false;
 
+    QFileInfo fileInfo(file);
+
     // We can't open directories.
-    if (QFileInfo(file).isDir()) {
+    if (fileInfo.isDir()) {
         emit error(tr("Cannot open") + " " + file + ", " + tr("is Directory"),
             true);
         return false;
     }
-    if (!QFileInfo(file).exists()) {
+    if (!fileInfo.exists()) {
         newFile = true;
+
+        // Create the containing directory if it doens't exist.
+        // If the directory doesn't exist we can't create the db file in it.
+        QDir fileDirectory = fileInfo.absoluteDir();
+        if (!fileDirectory.exists()) {
+            fileDirectory.mkpath(fileInfo.absolutePath());
+        }
     }
 
     // Setup the database connection.
