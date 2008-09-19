@@ -24,6 +24,8 @@
 #include <QNetworkRequest>
 #include <QStringList>
 
+#include <stdlib.h>
+
 #include "client.h"
 #include "opts.h"
 #include "platform.h"
@@ -46,7 +48,7 @@ Client::~Client()
     delete m_networkAccessManager;
     delete m_settingsManager;
 }
-
+#include <QtDebug>
 void Client::run()
 {
     parseOptions();
@@ -69,12 +71,12 @@ void Client::run()
     Q_FOREACH (Podcast *podcast, podcastListingsParser.getPodcasts()) {
         m_podcastRSSQueue.enqueue(podcast);
     }
-
+qDebug() << "1";
     // Exit if there are no podcasts.
     if (m_podcastRSSQueue.size() == 0) {
-        QCoreApplication::quit();
+        exit(0);
     }
-
+qDebug() << "2";
     // Start downloading the rss feeds. The number of downloads started is
     // the minimum of the user defined download thread count and the number
     // of podcasts in the queue. Calling more threads than there are items
@@ -130,7 +132,7 @@ void Client::downloadNext()
 
     // If there are no active downloads, exit.
     if (m_activeDownloadCount == 0) {
-        QCoreApplication::quit();
+        exit(0);
     }
 }
 
@@ -153,7 +155,7 @@ void Client::error(const QString &error, bool fatal)
 
     if (fatal) {
         *m_errStream << tr("Fatal: Exiting.") << endl;
-        QCoreApplication::quit();
+        exit(1);
     }
 }
 

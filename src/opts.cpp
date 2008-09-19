@@ -21,6 +21,8 @@
 #include <QCoreApplication>
 #include <QTextStream>
 
+#include <stdlib.h>
+
 #include "opts.h"
 #include "platform.h"
 #include "configure.h"
@@ -157,7 +159,7 @@ void Opts::unknownOption(const QString &option)
         << " " << Platform::commandLineArgumentFlag() << m_optionHelp
         << "' " << tr("for more information.") << endl;
 
-    QCoreApplication::quit();
+    exit(1);
 }
 
 
@@ -172,7 +174,7 @@ void Opts::missingArgument(const OptsOption &option)
         << " " << Platform::commandLineArgumentFlag() << m_optionHelp
         << "' " << tr("for more information.") << endl;
 
-    QCoreApplication::quit();
+    exit(1);
 }
 
 void Opts::showHelp()
@@ -200,7 +202,7 @@ void Opts::showHelp()
         }
     }
 
-    QCoreApplication::quit();
+    exit(0);
 }
 
 void Opts::showVersion()
@@ -211,5 +213,5 @@ void Opts::showVersion()
     out << "    " << tr("Version") << ": " << Configure::applicationVersion
         << endl;
 
-    QCoreApplication::quit();
+    exit(0);
 }
