@@ -43,6 +43,12 @@ class PodcastEpisode : public DownloadItem
          * @return The publish date.
          */
         QDateTime getPublishDate() const;
+        /**
+         * Get's the location where the episode will be downloaded to.
+         *
+         * @return The save location.
+         */
+         QString getSaveLocation() const;
 
         /**
          * Set the date the episode was published.

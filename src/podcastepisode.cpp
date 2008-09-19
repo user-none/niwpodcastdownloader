@@ -43,6 +43,11 @@ void PodcastEpisode::setPublishDate(const QDateTime &date)
     m_publishDate = date;
 }
 
+QString PodcastEpisode::getSaveLocation() const
+{
+    return m_fileName;
+}
+
 void PodcastEpisode::setSaveLocation(const QString &fileName)
 {
     m_fileName = fileName;
