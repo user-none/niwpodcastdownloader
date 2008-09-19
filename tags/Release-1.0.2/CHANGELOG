@@ -1,0 +1,22 @@
+Sep 19, 2008 - John Schember <john@nachtimwald.com>
+
+* 1.0.2 Release.
+* Better checking of errors when finished in DownloadItem.
+* Verbose mode.
+* Remove debug messages that should not have been committed.
+* Replace QCoreApplication::quit() with exit() so application terminates
+  correctly.
+* Create containing directory of episodes.db if it doesn't exist.
+
+
+Sep 18, 2008 - John Schember <john@nachtimwald.com>
+
+* Install target in build system.
+* 1.0.1 Release.
+* Fixed segmentation fault when not connected to the internet.
+
+
+Sep 17, 2008 - John Schember <john@nachtimwald.com>
+
+* 1.0 Release.
+

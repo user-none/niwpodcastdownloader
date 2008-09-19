@@ -1,0 +1,37 @@
+
+*** Introduction
+
+niwpodcastdownloader uses the Qt framework version 4. However it does not use
+the Qt gui. This is a console application.
+
+It is designed to run on any operating system supported by Qt
+
+
+*** Requirements
+
+CMake >= 2.6.0
+Qt 4 >= 4.4.0
+Qt 4 SQLite module
+SQLite 3
+
+
+*** Platform Specic Code
+
+Platform specific code can be disabled on a supported platform by specifiying
+-D NO_PLATFORM=TRUE as part of the cmake configuation.
+
+Platform specific code is used by deafult on:
+* Linux
+* Unix
+* Window
+
+
+*** Compile
+
+$ mkdir build
+$ cmake ../build
+
+
+*** Install
+
+$ make install
