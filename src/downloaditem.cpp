@@ -77,7 +77,10 @@ void DownloadItem::downloadFinished()
         return;
     }
 
-    if (m_reply->error() != QNetworkReply::NoError) {
+    if (m_reply->error() != QNetworkReply::NoError
+        || m_reply->attribute(QNetworkRequest::HttpStatusCodeAttribute)
+        .isNull())
+    {
         cleanDownload();
         emit error(this, "Connection failed.");
         return;
