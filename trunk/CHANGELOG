@@ -1,5 +1,7 @@
 Sep 19, 2008 - John Schember <john@nachtimwald.com>
 
+* Verbose mode.
+* Remove debug messages that should not have been committed.
 * Replace QCoreApplication::quit() with exit() so application terminates
   correctly.
 * Create containing directory of episodes.db if it doesn't exist.

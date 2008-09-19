@@ -34,21 +34,24 @@
 Client::Client()
 {
     m_errStream = new QTextStream(stderr);
+    m_outStream = new QTextStream(stdout);
     m_episodeListing = new EpisodeListing();
     m_networkAccessManager = new QNetworkAccessManager();
     m_activeDownloadCount = 0;
     m_settingsManager = new SettingsManager();
     m_initMode = false;
+    m_verboseMode = false;
 }
 
 Client::~Client()
 {
     delete m_errStream;
+    delete m_outStream;
     delete m_episodeListing;
     delete m_networkAccessManager;
     delete m_settingsManager;
 }
-#include <QtDebug>
+
 void Client::run()
 {
     parseOptions();
@@ -56,27 +59,35 @@ void Client::run()
     connect(m_episodeListing, SIGNAL(error(const QString &, bool)), this,
         SLOT(error(const QString &, bool)));
 
+    verbose(tr("Opening episodes database at") + " "
+        + m_settingsManager->getDownloadedEpisodeListFile() + tr("."));
     // If the file cannot be opened a fatal error will be emitted and the
     // application will exit.
     m_episodeListing->open(m_settingsManager->getDownloadedEpisodeListFile());
 
+    verbose(tr("Opening podcast listings file at") + " "
+        + m_settingsManager->getPodcastsFile() + tr("."));
     // Get the podcast rss urls from the listing file.
     PodcastListingsParser podcastListingsParser;
     connect(&podcastListingsParser, SIGNAL(error(const QString &, bool)),
         this, SLOT(error(const QString &, bool)));
     podcastListingsParser.parseListingsFile(
         m_settingsManager->getPodcastsFile());
+
     // Add the valid podcasts to the rss queue so their rss feeds can be
     // downloaded.
     Q_FOREACH (Podcast *podcast, podcastListingsParser.getPodcasts()) {
         m_podcastRSSQueue.enqueue(podcast);
     }
-qDebug() << "1";
+
+    verbose(tr("Found") + " " + QString::number(m_podcastRSSQueue.size()) + " "
+        + tr("podcasts."));
+
     // Exit if there are no podcasts.
     if (m_podcastRSSQueue.size() == 0) {
         exit(0);
     }
-qDebug() << "2";
+
     // Start downloading the rss feeds. The number of downloads started is
     // the minimum of the user defined download thread count and the number
     // of podcasts in the queue. Calling more threads than there are items
@@ -179,6 +190,9 @@ void Client::startRSSDownload(DownloadItem *item, QUrl url)
             SLOT(episodesReady(DownloadItem *)));
     }
 
+    verbose(tr("Starting rss download for") + " " + podcast->getName() + " "
+        + tr("from") + " " + url.toString() + tr("."));
+
     QNetworkReply *reply;
 
     // Start the download.
@@ -192,6 +206,9 @@ void Client::episodesReady(DownloadItem *item)
     // hence why there must be a cast to the derived class type.
     Podcast *podcast = static_cast<Podcast *>(item);
 
+    verbose(tr("Rss download finished for") + " " + podcast->getName()
+        + tr("."));
+
     if (podcast->isInit() || m_initMode) {
         // Mark all episodes as downloaded.
         Q_FOREACH (PodcastEpisode *episode, podcast->getEpisodes()) {
@@ -199,6 +216,9 @@ void Client::episodesReady(DownloadItem *item)
         }
         podcast->clearEpisodeList();
         podcast->deleteLater();
+
+        verbose(tr("Running in init mode. Marking all episodes for") + " "
+            + podcast->getName() + " " + tr("as downloaded."));
     }
     else {
         // Generate a list of episodes to download.
@@ -208,6 +228,11 @@ void Client::episodesReady(DownloadItem *item)
                 podcast->removeEpisode(episode);
             }
         }
+
+        verbose(tr("Queuing") + " "
+            + QString::number(podcast->getEpisodeCount()) + " "
+            + tr("episodes from") + " " + podcast->getName() + " "
+            + tr("for download."));
 
         if (podcast->getEpisodeCount() > 0) {
             m_podcastDownloadQueue.enqueue(podcast);
@@ -282,6 +307,10 @@ void Client::startEpisodeDownload(DownloadItem *item, QUrl url)
         episode->resetWrite();
     }
 
+    verbose(tr("Starting episode download for") + " " + episode->getName()
+        + " " + tr("from") + " " + url.toString() + " "
+        + tr(" and saving to") + " " + episode->getSaveLocation() + tr("."));
+
     QNetworkReply *reply;
 
     // Start the download.
@@ -295,6 +324,9 @@ void Client::episodeDownloaded(DownloadItem *item)
     // class hence why there must be a cast to the derived class type.
     PodcastEpisode *episode = static_cast<PodcastEpisode *>(item);
 
+    verbose(tr("Episode") + " " + episode->getName() + " "
+        + tr("downloaded successfully."));
+
     m_episodeListing->setDownloaded(episode);
 
     episode->deleteLater();
@@ -303,11 +335,21 @@ void Client::episodeDownloaded(DownloadItem *item)
     downloadNext();
 }
 
+void Client::verbose(const QString &message)
+{
+    if (m_verboseMode) {
+        *m_outStream << message << endl;
+    }
+}
+
 void Client::parseOptions()
 {
     OptsOption initOption(tr("init"), &m_initMode, false, 0,
         tr("Init mode. Mark all episodes as downloading without downloading "
         "any."), "");
+
+    OptsOption verboseOption(tr("verbose"), &m_verboseMode, false, 0,
+        tr("Verbose mode. Be chatty about what is happening."), "");
 
     bool writeConfigSet = false;
     OptsOption writeConfigOption(tr("write_config"), &writeConfigSet, false, 0,
@@ -350,6 +392,7 @@ void Client::parseOptions()
     Opts opts;
 
     opts.addOption(initOption);
+    opts.addOption(verboseOption);
     opts.addOption(writeConfigOption);
     opts.addOption(episodesdbOption);
     opts.addOption(saveLocationOption);

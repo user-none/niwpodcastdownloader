@@ -137,6 +137,10 @@ class Client : public QObject
 
     private:
         /**
+         * Check and write message for verbose mode.
+         */
+        void verbose(const QString &message);
+        /**
          * Parse the command line arguments.
          */
         void parseOptions();
@@ -158,7 +162,19 @@ class Client : public QObject
          * as downloaded.
          */
         bool m_initMode;
+        /**
+         * Run the application in verbose mode.
+         *
+         * Output what the application is doing. Useful for testing.
+         */
+        bool m_verboseMode;
 
+        /**
+         * The stream to use for writing to the standard output.
+         *
+         * This is used in verbose mode.
+         */
+        QTextStream *m_outStream;
         /**
          * The stream to use for writing error messages.
          */
