@@ -1,3 +1,8 @@
+Sep 20, 2008 - John Schember <john@nachtimwald.com>
+
+* Fix closing file after download completes.
+
+
 Sep 19, 2008 - John Schember <john@nachtimwald.com>
 
 * 1.0.2 Release.

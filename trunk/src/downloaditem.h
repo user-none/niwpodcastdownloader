@@ -126,7 +126,7 @@ class DownloadItem : public QObject
          *
          * This is necessary if the download is stopped before it completes.
          */
-        void cleanDownload();
+        virtual void cleanDownload();
 
         /**
          * The network reply associated with the download.

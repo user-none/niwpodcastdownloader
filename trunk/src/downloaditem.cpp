@@ -93,7 +93,7 @@ void DownloadItem::downloadFinished()
         // Everything is fine, the download completed successfully.
         case 200:
             downloadSuccessful();
-            DownloadItem::cleanDownload();
+            cleanDownload();
             emit finished(this);
             break;
         // Moved Permanently
@@ -106,7 +106,7 @@ void DownloadItem::downloadFinished()
 
             if (!m_rssMovedUrls.contains(newUrl.toString())) {
                 m_rssMovedUrls.append(newUrl.toString());
-                cleanDownload();
+                DownloadItem::cleanDownload();
                 emit contentMoved(this, newUrl);
             }
             else {
