@@ -93,12 +93,12 @@ void Podcast::clearEpisodeList()
     m_episodes.clear();
 }
 
-void Podcast::downloadSuccessful()
+bool Podcast::downloadSuccessful()
 {
     clearEpisodeList();
 
     if (!m_reply) {
-        return;
+        return false;
     }
 
     QDomDocument document;
@@ -111,20 +111,20 @@ void Podcast::downloadSuccessful()
             + tr("because") + " " + errorMsg + " " + tr("at line") + " "
             + QString::number(errorLine) + " " + tr("and column") + " "
             + QString::number(errorColumn));
-        return;
+        return false;
     }
 
     QDomElement rootElement = document.firstChildElement("rss");
     if (rootElement.isNull()) {
         emit error(this, tr("Rss element <rss> not found in podcast") + " "
             + getName() + " " + tr("feed"));
-        return;
+        return false;
     }
     QDomElement channelElement = rootElement.firstChildElement("channel");
     if (channelElement.isNull()) {
         emit error(this, tr("Rss element <channel> not found in podcast") + " "
             + getName() + " " + tr("feed"));
-        return;
+        return false;
     }
 
     QDomElement itemElement = channelElement.firstChildElement("item");
@@ -168,4 +168,6 @@ void Podcast::downloadSuccessful()
     // be given otherwise qSort will sort based upon the memory address of
     // the pointers not the episode objects.
     qSort(m_episodes.begin(), m_episodes.end(), PodcastEpisode::greaterThan);
+
+    return true;
 }

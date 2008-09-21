@@ -91,7 +91,7 @@ class PodcastEpisode : public DownloadItem
         void writeData();
 
     protected:
-        void downloadSuccessful();
+        bool downloadSuccessful();
         void cleanDownload();
 
     private:

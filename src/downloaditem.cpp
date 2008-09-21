@@ -92,9 +92,16 @@ void DownloadItem::downloadFinished()
         // OK
         // Everything is fine, the download completed successfully.
         case 200:
-            downloadSuccessful();
-            cleanDownload();
-            emit finished(this);
+            // downloadSuccessful must be called before cleanDownload.
+            // cleanDownload must be called before the finished signal is
+            // emitted.
+            if (downloadSuccessful()) {
+                cleanDownload();
+                emit finished(this);
+            }
+            else {
+                cleanDownload();
+            }
             break;
         // Moved Permanently
         case 301:

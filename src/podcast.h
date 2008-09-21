@@ -139,10 +139,12 @@ class Podcast : public DownloadItem
          * If the episode list has been modifed by other functions this will
          * clear those changes.
          *
+         * @return True on success. False if there was an error.
+         *
          * @see removeEpisode
          * @see truncateEpisodes
          */
-        void downloadSuccessful();
+        bool downloadSuccessful();
 
     private:
         /**

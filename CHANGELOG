@@ -1,3 +1,8 @@
+Sep 21, 2008 - John Schember <john@nachtimwald.com>
+
+* De-increment of the download count does not happen twice with failed items.
+
+
 Sep 20, 2008 - John Schember <john@nachtimwald.com>
 
 * Fix setting version for trunk builds.

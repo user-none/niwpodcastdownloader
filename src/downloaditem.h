@@ -119,8 +119,11 @@ class DownloadItem : public QObject
         /**
          * Derived classes can do any needed processing on the downloaded
          * content.
+         *
+         * @return True if the processing completes successfully. False if
+         * there was an error.
          */
-        virtual void downloadSuccessful() = 0;
+        virtual bool downloadSuccessful() = 0;
         /**
          * Clean up any resources used by the download.
          *
