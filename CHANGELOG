@@ -1,5 +1,6 @@
 Sep 21, 2008 - John Schember <john@nachtimwald.com>
 
+* 1.0.3 Release
 * Build system shows the build type and install prefix.
 * De-increment of the download count does not happen twice with failed items.
 
