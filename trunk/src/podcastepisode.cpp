@@ -114,7 +114,7 @@ bool PodcastEpisode::greaterThan(PodcastEpisode *ep1, PodcastEpisode *ep2)
     return false;
 }
 
-void PodcastEpisode::downloadSuccessful()
+bool PodcastEpisode::downloadSuccessful()
 {
     if (m_file) {
         m_file->close();
@@ -125,6 +125,8 @@ void PodcastEpisode::downloadSuccessful()
         m_reply->close();
         m_reply = 0;
     }
+
+    return true;
 }
 
 void PodcastEpisode::cleanDownload()
