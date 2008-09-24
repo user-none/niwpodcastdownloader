@@ -92,7 +92,7 @@ void Client::run()
     // the minimum of the user defined download thread count and the number
     // of podcasts in the queue. Calling more threads than there are items
     // wouldn't do anything productive.
-    for (int i = 0; i < minimum(m_settingsManager->getThreadCount(),
+    for (int i = 0; i < qMin(m_settingsManager->getThreadCount(),
         m_podcastRSSQueue.size()); i++)
     {
         startRSSDownload();
@@ -427,12 +427,4 @@ void Client::parseOptions()
     if (listingSet) {
         m_settingsManager->setPodcastsFile(listingArg);
     }
-}
-
-int Client::minimum(int a, int b)
-{
-    if (a < b) {
-        return a;
-    }
-    return b;
 }

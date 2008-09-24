@@ -113,30 +113,15 @@ void SettingsManager::setDownloadedEpisodeListFile(const QString &file)
 
 void SettingsManager::setThreadCount(int count)
 {
-    if (count < 1) {
-        m_threadCount = 1;
-    }
-    else {
-        m_threadCount = count;
-    }
+    m_threadCount = qMax(count, 1);
 }
 
 void SettingsManager::setRecentEpisodeCount(int count)
 {
-    if (count < 0) {
-        m_recentEpisodeCount = 0;
-    }
-    else {
-        m_recentEpisodeCount = count;
-    }
+    m_recentEpisodeCount = qMax(count, 0);
 }
 
 void SettingsManager::setMinimumFreeDiskSpace(qlonglong size)
 {
-    if (size < -1) {
-        m_minimumFreeDiskSpace = -1;
-    }
-    else {
-        m_minimumFreeDiskSpace = size;
-    }
+    m_minimumFreeDiskSpace = qMax(size,  Q_INT64_C(-1));
 }
