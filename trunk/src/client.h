@@ -144,16 +144,6 @@ class Client : public QObject
          * Parse the command line arguments.
          */
         void parseOptions();
-        /**
-         * Find the minimum of two numbers.
-         *
-         * @param a The first number.
-         * @param b The second number.
-         *
-         * @return The number that is the smaller of the two. If a and b are
-         * equal the number is returned.
-         */
-        static int minimum(int a, int b);
 
         /**
          * Run the application in init mode.
