@@ -103,8 +103,8 @@ class Podcast : public DownloadItem
          * Remove the episode from the episode list.
          *
          * This is used in conjunction with previously downloaded episodes.
-         * This will NOT delete the episode object. It will only remove the
-         * pointer to the object from the list.
+         * This will delete the episode object. It will also remove the
+         * episode object from the list.
          *
          * @param *episode The episode to remove
          */

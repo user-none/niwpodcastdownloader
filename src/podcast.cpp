@@ -20,6 +20,7 @@
 
 #include <QDomDocument>
 #include <QDomElement>
+#include <QListIterator>
 
 #include "podcast.h"
 
@@ -70,6 +71,8 @@ void Podcast::setCategory(const QString &category)
 void Podcast::removeEpisode(PodcastEpisode *episode)
 {
     m_episodes.removeAll(episode);
+    delete episode;
+    episode = 0;
 }
 
 void Podcast::truncateEpisodes(int position)
@@ -81,7 +84,9 @@ void Podcast::truncateEpisodes(int position)
     }
 
     while (m_episodes.size() > position) {
-        delete m_episodes.takeLast();
+        PodcastEpisode *episode = m_episodes.takeLast();
+        delete episode;
+        episode = 0;
     }
 }
 
@@ -89,6 +94,7 @@ void Podcast::clearEpisodeList()
 {
     Q_FOREACH (PodcastEpisode *episode, m_episodes) {
         delete episode;
+        episode = 0;
     }
     m_episodes.clear();
 }
@@ -148,12 +154,23 @@ bool Podcast::downloadSuccessful()
             {
                 episode->setUrl(QUrl(dataElement.attribute("url")));
             }
+            else if (dataElement.tagName().trimmed().toLower()
+                == "itunes:explicit")
+            {
+                // We want to be conservative. If it's not no it's assumed to
+                // be yes. We don't need to set the explicit status to false
+                // because false is the default status for an episode.
+                if (dataElement.attribute("url") != "no") {
+                    episode->setExplicit(true);
+                }
+            }
 
             dataElement = dataElement.nextSiblingElement();
         }
 
         if (episode->getUrl().isEmpty() || !episode->getUrl().isValid()) {
             delete episode;
+            episode = 0;
         }
         else {
             m_episodes.append(episode);

@@ -51,6 +51,8 @@ advanced/recent_episode_count = The number of most recent episodes to download.
     0 to download all recent episodes.
 advanced/minimum_free_space = The minimum amount of diskspace that must be free
     to start a new download. Use any number less than 0 to disable.
+advanced/filter_explicit = should explicit episodes be downloaded? 0 for
+    download all including explicit. 1 for do not download explicit.
 
 
 *** Podcasts Listing File

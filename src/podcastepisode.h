@@ -49,6 +49,17 @@ class PodcastEpisode : public DownloadItem
          * @return The save location.
          */
          QString getSaveLocation() const;
+        /**
+         * Does this episode contain explicit content.
+         *
+         * Explicit content includes for example, foul language or mature
+         * topics. The explicit status is determined by the itunes:explicit
+         * tag in the podcast rss feed. Episodes with out the itunes:explicit
+         * tag are set as not explicit.
+         *
+         * @return True if the podcast is explicit. False if it is not.
+         */
+        bool isExplicit();
 
         /**
          * Set the date the episode was published.
@@ -62,6 +73,12 @@ class PodcastEpisode : public DownloadItem
          * @param fileName The name of the file including path to save to.
          */
         void setSaveLocation(const QString &fileName);
+        /**
+         * Sets the explicit status of the episode.
+         *
+         * @param isExplicit Whether the episode contains explicit content.
+         */
+        void setExplicit(bool isExplicit);
 
         /**
          * Set the write to take place at the beginning of the file.
@@ -108,6 +125,11 @@ class PodcastEpisode : public DownloadItem
          * The file object to use for writing.
          */
         QFile *m_file;
+        /**
+         * The explicit status of the episode. Episodes default to not
+         * explicit.
+         */
+        bool m_explicit;
 };
 
 #endif /* PODCASTEPISODE_H */
