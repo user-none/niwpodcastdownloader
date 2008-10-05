@@ -23,6 +23,7 @@
 PodcastEpisode::PodcastEpisode()
 {
     m_file = 0;
+    m_explicit = false;
 }
 
 PodcastEpisode::~PodcastEpisode()
@@ -62,6 +63,16 @@ void PodcastEpisode::setSaveLocation(const QString &fileName)
         delete m_file;
         m_file = 0;
     }
+}
+
+bool PodcastEpisode::isExplicit()
+{
+    return m_explicit;
+}
+
+void PodcastEpisode::setExplicit(bool isExplicit)
+{
+    m_explicit = isExplicit;
 }
 
 void PodcastEpisode::resetWrite()

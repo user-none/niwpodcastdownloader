@@ -1,3 +1,9 @@
+Oct 5, 2008 - John Schember <john@nachtimwald.com>
+
+* Filter explicit expisodes feature.
+* Add object = 0 after a few deletes.
+
+
 Sep 23, 2008 - John Schember <john@nachtimwald.com>
 
 * Use qMin and qMax where appropriate.

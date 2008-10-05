@@ -212,7 +212,14 @@ void Client::episodesReady(DownloadItem *item)
     if (podcast->isInit() || m_initMode) {
         // Mark all episodes as downloaded.
         Q_FOREACH (PodcastEpisode *episode, podcast->getEpisodes()) {
-            m_episodeListing->setDownloaded(episode);
+            // Do not mark explicit episodes as downloaded when filtering
+            // explicit. We don't want the user to think that explicit episodes
+            // are being downloaded when they've requested not to.
+            if (!m_settingsManager->getFilterExplicit()
+                || !episode->isExplicit())
+            {
+                m_episodeListing->setDownloaded(episode);
+            }
         }
         podcast->clearEpisodeList();
         podcast->deleteLater();
@@ -224,7 +231,11 @@ void Client::episodesReady(DownloadItem *item)
         // Generate a list of episodes to download.
         podcast->truncateEpisodes(m_settingsManager->getRecentEpisodeCount());
         Q_FOREACH (PodcastEpisode *episode, podcast->getEpisodes()) {
-            if (m_episodeListing->isDownloaded(episode)) {
+            // Remove downloaded and explicit if we are filtering explicit.
+            if (m_episodeListing->isDownloaded(episode)
+                || (m_settingsManager->getFilterExplicit()
+                && episode->isExplicit()))
+            {
                 podcast->removeEpisode(episode);
             }
         }
@@ -356,6 +367,10 @@ void Client::parseOptions()
         tr("Write the default config to disk. This will over write any "
         "existing configuration settings."), "");
 
+    bool filterExplicit = false;
+    OptsOption filterExplicitOption(tr("filter_explicit"), &filterExplicit,
+        false, 0, tr("Do not download episodes marked as explicit"), "");
+
     bool episodesdbSet = false;
     QString episodesdbArg = "";
     OptsOption episodesdbOption(tr("episodes_db"), &episodesdbSet, true,
@@ -408,6 +423,9 @@ void Client::parseOptions()
 
     if (writeConfigSet) {
         m_settingsManager->writeDefaultConfig();
+    }
+    if (filterExplicit) {
+        m_settingsManager->setFilterExplicit(true);
     }
     if (episodesdbSet) {
         m_settingsManager->setDownloadedEpisodeListFile(episodesdbArg);

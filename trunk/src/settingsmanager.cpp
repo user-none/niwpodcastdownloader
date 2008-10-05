@@ -52,6 +52,9 @@ SettingsManager::SettingsManager()
     // How much disk space is required to start a new download.
     m_minimumFreeDiskSpace = value("advanced/minimum_free_space", 0)
         .toLongLong();
+
+    // Whether explict episodes should be filtered.
+    m_filterExplicit = value("advanced/filter_explicit", false).toBool();
 }
 
 void SettingsManager::writeDefaultConfig()
@@ -64,6 +67,7 @@ void SettingsManager::writeDefaultConfig()
     setValue("advanced/thread_count", 1);
     setValue("advanced/recent_episode_count", 0);
     setValue("advanced/minimum_free_space", 0);
+    setValue("advanced/filter_explicit", 0);
 }
 
 QString SettingsManager::getSaveLocation()
@@ -96,6 +100,11 @@ qlonglong SettingsManager::getMinimumFreeDiskSpace()
     return m_minimumFreeDiskSpace;
 }
 
+bool SettingsManager::getFilterExplicit()
+{
+    return m_filterExplicit;
+}
+
 void SettingsManager::setSaveLocation(const QString &location)
 {
     m_saveLocation = location;
@@ -124,4 +133,9 @@ void SettingsManager::setRecentEpisodeCount(int count)
 void SettingsManager::setMinimumFreeDiskSpace(qlonglong size)
 {
     m_minimumFreeDiskSpace = qMax(size,  Q_INT64_C(-1));
+}
+
+void SettingsManager::setFilterExplicit(bool filterExplicit)
+{
+    m_filterExplicit = filterExplicit;
 }

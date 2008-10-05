@@ -81,6 +81,12 @@ class SettingsManager : private QSettings
          * ignored.
          */
         qlonglong getMinimumFreeDiskSpace();
+        /**
+         * Should explicit episodes be ignored.
+         *
+         * @return True if explicit episodes should be ignored.
+         */
+        bool getFilterExplicit();
 
         /**
          * Sets the location that podcasts should be saved in.
@@ -121,6 +127,12 @@ class SettingsManager : private QSettings
          * @param size The amount of disk space in KB.
          */
         void setMinimumFreeDiskSpace(qlonglong size);
+        /**
+         * Should explicit episodes be ignored.
+         *
+         * @param filterExplicit True if explicit episodes should be ignored.
+         */
+        void setFilterExplicit(bool filterExplicit);
 
     private:
         /**
@@ -149,6 +161,10 @@ class SettingsManager : private QSettings
          * download.
          */
         qlonglong m_minimumFreeDiskSpace;
+        /**
+         * Whether explicit episodes should be ignored;
+         */
+        bool m_filterExplicit;
 };
 
 #endif /* SETTINGSMANAGER_H */
