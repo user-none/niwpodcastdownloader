@@ -25,17 +25,22 @@
 SettingsManager::SettingsManager()
 {
     // Get the location the podcasts should be saved to.
-    m_saveLocation = QDir::fromNativeSeparators(value(
-        "paths/podcast_save_location", QDir::homePath() + "/podcasts")
-        .toString());
+    m_saveLocation = QDir::fromNativeSeparators(
+        value("paths/podcast_save_location",
+        QString("%1/podcasts")
+        .arg(QDir::homePath())).toString());
 
     // Get the location of the file listing the podcast rss feeds.
-    m_podcastsListFile = value("paths/podcast_xml_file",
-        QDir::homePath() + "/.niw-podcast-downloader/podcasts.xml").toString();
+    m_podcastsListFile = QDir::fromNativeSeparators(
+        value("paths/podcast_xml_file",
+        QString("%1/.niw-podcast-downloader/podcasts.xml")
+        .arg(QDir::homePath())).toString());
 
     // Get the location of the file storing the db storing downloaded episodes.
-    m_downloadedEpisodeListFile = value("paths/podcast_episode_db",
-        QDir::homePath() + "/.niw-podcast-downloader/episodes.db").toString();
+    m_downloadedEpisodeListFile = QDir::fromNativeSeparators(
+        value("paths/podcast_episode_db",
+        QString("%1/.niw-podcast-downloader/episodes.db")
+        .arg(QDir::homePath())).toString());
 
     // Number of download threads to use.
     m_threadCount = value("advanced/thread_count", 1).toInt();
@@ -59,11 +64,14 @@ SettingsManager::SettingsManager()
 
 void SettingsManager::writeDefaultConfig()
 {
-    setValue("paths/podcast_save_location", QDir::homePath() + "/podcasts");
+    setValue("paths/podcast_save_location", QString("%1/podcasts")
+        .arg(QDir::homePath()));
     setValue("paths/podcast_xml_file",
-        QDir::homePath() + "/.niw-podcast-downloader/podcasts.xml");
+        QString("%1/.niw-podcast-downloader/podcasts.xml")
+        .arg(QDir::homePath()));
     setValue("paths/podcast_episode_db",
-        QDir::homePath() + "/.niw-podcast-downloader/episodes.db");
+        QString("%1/.niw-podcast-downloader/episodes.db")
+        .arg(QDir::homePath()));
     setValue("advanced/thread_count", 1);
     setValue("advanced/recent_episode_count", 0);
     setValue("advanced/minimum_free_space", 0);

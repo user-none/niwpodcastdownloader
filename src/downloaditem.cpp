@@ -63,8 +63,9 @@ void DownloadItem::setNetworkReply(QNetworkReply *reply)
     m_reply->setParent(this);
     // The name should not be seen by the end user. The name of the reply will
     // be written to stderr if there is an issue with the object. This could
-    //  happen if the reply is deleted while in it's event handler.
-    m_reply->setObjectName("reply for: " + getName());
+    // happen if the reply is deleted while in it's event handler.
+    // However, this will show if Qt is not built with SSL support.
+    m_reply->setObjectName(QString("reply for: %1").arg(getName()));
 
     connect(m_reply, SIGNAL(finished()), this, SLOT(downloadFinished()));
     connect(m_reply, SIGNAL(sslErrors(const QList<QSslError> &)), m_reply,
@@ -77,17 +78,18 @@ void DownloadItem::downloadFinished()
         return;
     }
 
+    // Check for error conditions.
     if (m_reply->error() != QNetworkReply::NoError) {
         cleanDownload();
-        emit error(this, "Connection failed because "
-            + m_reply->errorString());
+        emit error(this, tr("Connection failed because %1.")
+            .arg(m_reply->errorString()));
         return;
     }
     if (m_reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).isNull())
     {
         cleanDownload();
-        emit error(this, "Connection failed because no HTTP status code was"
-            " returned");
+        emit error(this, tr("Connection failed because no HTTP status code was"
+            " returned."));
         return;
     }
 
@@ -123,7 +125,7 @@ void DownloadItem::downloadFinished()
             }
             else {
                 cleanDownload();
-                emit error(this, tr("Infinite redirection"));
+                emit error(this, tr("Infinite redirection."));
             }
             break;
         }
@@ -133,10 +135,11 @@ void DownloadItem::downloadFinished()
         // Other HTTP Status codes.
         default:
             cleanDownload();
-            emit error(this, tr("Http status") + " "
-                + m_reply->attribute(QNetworkRequest::HttpStatusCodeAttribute)
-                .toString() + ": " + m_reply->attribute(
-                QNetworkRequest::HttpReasonPhraseAttribute).toString());
+            emit error(this, tr("Http status %1: %2.")
+                .arg(m_reply->attribute(
+                QNetworkRequest::HttpStatusCodeAttribute).toString())
+                .arg(m_reply->attribute(
+                QNetworkRequest::HttpReasonPhraseAttribute).toString()));
             break;
     }
 }
