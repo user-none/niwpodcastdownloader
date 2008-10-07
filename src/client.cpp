@@ -148,7 +148,7 @@ void Client::downloadNext()
 
 void Client::downloadError(DownloadItem *item, QString errorString)
 {
-    *m_errStream << tr("Error: could not download %1 because %2.")
+    *m_errStream << tr("Error: could not download %1 because %2")
         .arg(item->getName()).arg(errorString) << endl;
 
     m_activeDownloadCount--;

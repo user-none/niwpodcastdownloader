@@ -81,8 +81,9 @@ void DownloadItem::downloadFinished()
     // Check for error conditions.
     if (m_reply->error() != QNetworkReply::NoError) {
         cleanDownload();
-        emit error(this, tr("Connection failed because %1.")
-            .arg(m_reply->errorString()));
+        // Do not use m_reply->errorString() to display a more complete error
+        // message because it will cause a seg fault.
+        emit error(this, tr("Connection failed."));
         return;
     }
     if (m_reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).isNull())
