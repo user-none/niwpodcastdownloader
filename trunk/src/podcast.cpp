@@ -113,23 +113,22 @@ bool Podcast::downloadSuccessful()
     int errorColumn;
 
     if (!document.setContent(m_reply, &errorMsg, &errorLine, &errorColumn)) {
-        emit error(this, tr("Could not parse") + " " + getName() + ", "
-            + tr("because") + " " + errorMsg + " " + tr("at line") + " "
-            + QString::number(errorLine) + " " + tr("and column") + " "
-            + QString::number(errorColumn));
+        emit error(this, tr("Could not parse %1 because %2 at line %3 and"
+            " column %4.").arg(getName()).arg(errorMsg).arg(errorLine)
+            .arg(errorColumn));
         return false;
     }
 
     QDomElement rootElement = document.firstChildElement("rss");
     if (rootElement.isNull()) {
-        emit error(this, tr("Rss element <rss> not found in podcast") + " "
-            + getName() + " " + tr("feed"));
+        emit error(this, tr("Rss element <rss> not found in podcast feed for"
+            " %1.").arg(getName()));
         return false;
     }
     QDomElement channelElement = rootElement.firstChildElement("channel");
     if (channelElement.isNull()) {
-        emit error(this, tr("Rss element <channel> not found in podcast") + " "
-            + getName() + " " + tr("feed"));
+        emit error(this, tr("Rss element <channel> not found in podcast feed"
+            " for %1.").arg(getName()));
         return false;
     }
 

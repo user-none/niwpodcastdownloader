@@ -97,7 +97,7 @@ void PodcastEpisode::setNetworkReply(QNetworkReply *reply)
 
     m_reply = reply;
     m_reply->setParent(this);
-    m_reply->setObjectName("reply for: " + getName());
+    m_reply->setObjectName(QString("reply for: %1").arg(getName()));
 
     connect(m_reply, SIGNAL(readyRead()), this, SLOT(writeData()));
     connect(m_reply, SIGNAL(finished()), this, SLOT(downloadFinished()));
@@ -112,8 +112,8 @@ void PodcastEpisode::writeData()
     }
     else {
         cleanDownload();
-        emit error(this, tr("File") + ", " + m_fileName
-            + " " + tr("could not opened for writing."));
+        emit error(this, tr("File %1 could not opened for writing.")
+            .arg(m_fileName));
     }
 }
 

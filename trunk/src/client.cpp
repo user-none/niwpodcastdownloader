@@ -59,14 +59,14 @@ void Client::run()
     connect(m_episodeListing, SIGNAL(error(const QString &, bool)), this,
         SLOT(error(const QString &, bool)));
 
-    verbose(tr("Opening episodes database at") + " "
-        + m_settingsManager->getDownloadedEpisodeListFile() + tr("."));
+    verbose(tr("Opening episodes database at %1.").arg(m_settingsManager
+        ->getDownloadedEpisodeListFile()));
     // If the file cannot be opened a fatal error will be emitted and the
     // application will exit.
     m_episodeListing->open(m_settingsManager->getDownloadedEpisodeListFile());
 
-    verbose(tr("Opening podcast listings file at") + " "
-        + m_settingsManager->getPodcastsFile() + tr("."));
+    verbose(tr("Opening podcast listings file at %1.").arg(m_settingsManager
+        ->getPodcastsFile()));
     // Get the podcast rss urls from the listing file.
     PodcastListingsParser podcastListingsParser;
     connect(&podcastListingsParser, SIGNAL(error(const QString &, bool)),
@@ -80,8 +80,7 @@ void Client::run()
         m_podcastRSSQueue.enqueue(podcast);
     }
 
-    verbose(tr("Found") + " " + QString::number(m_podcastRSSQueue.size()) + " "
-        + tr("podcasts."));
+    verbose(tr("Found %1 podcasts.").arg(m_podcastRSSQueue.size()));
 
     // Exit if there are no podcasts.
     if (m_podcastRSSQueue.size() == 0) {
@@ -149,8 +148,8 @@ void Client::downloadNext()
 
 void Client::downloadError(DownloadItem *item, QString errorString)
 {
-    *m_errStream << tr("Error: could not download") << " " << item->getName()
-        << ", " << tr("because") << " " << errorString << endl;
+    *m_errStream << tr("Error: could not download %1 because %2.")
+        .arg(item->getName()).arg(errorString) << endl;
 
     m_activeDownloadCount--;
     downloadNext();
@@ -161,7 +160,7 @@ void Client::downloadError(DownloadItem *item, QString errorString)
 void Client::error(const QString &error, bool fatal)
 {
     if (m_errStream) {
-        *m_errStream << tr("Error:") << " " << error << endl;
+        *m_errStream << tr("Error: %1").arg(error) << endl;
     }
 
     if (fatal) {
@@ -190,8 +189,8 @@ void Client::startRSSDownload(DownloadItem *item, QUrl url)
             SLOT(episodesReady(DownloadItem *)));
     }
 
-    verbose(tr("Starting rss download for") + " " + podcast->getName() + " "
-        + tr("from") + " " + url.toString() + tr("."));
+    verbose(tr("Starting rss download for %1 from %2.").arg(podcast->getName())
+        .arg(url.toString()));
 
     QNetworkReply *reply;
 
@@ -206,8 +205,7 @@ void Client::episodesReady(DownloadItem *item)
     // hence why there must be a cast to the derived class type.
     Podcast *podcast = static_cast<Podcast *>(item);
 
-    verbose(tr("Rss download finished for") + " " + podcast->getName()
-        + tr("."));
+    verbose(tr("Rss download finished for %1.").arg(podcast->getName()));
 
     if (podcast->isInit() || m_initMode) {
         // Mark all episodes as downloaded.
@@ -224,8 +222,8 @@ void Client::episodesReady(DownloadItem *item)
         podcast->clearEpisodeList();
         podcast->deleteLater();
 
-        verbose(tr("Running in init mode. Marking all episodes for") + " "
-            + podcast->getName() + " " + tr("as downloaded."));
+        verbose(tr("Running in init mode. Marking all episodes for %1 as"
+            " downloaded.").arg(podcast->getName()));
     }
     else {
         // Generate a list of episodes to download.
@@ -240,10 +238,8 @@ void Client::episodesReady(DownloadItem *item)
             }
         }
 
-        verbose(tr("Queuing") + " "
-            + QString::number(podcast->getEpisodeCount()) + " "
-            + tr("episodes from") + " " + podcast->getName() + " "
-            + tr("for download."));
+        verbose(tr("Queuing %1 episodes from %2 for download.")
+            .arg(podcast->getEpisodeCount()).arg(podcast->getName()));
 
         if (podcast->getEpisodeCount() > 0) {
             m_podcastDownloadQueue.enqueue(podcast);
@@ -270,15 +266,17 @@ void Client::startEpisodeDownload(DownloadItem *item, QUrl url)
         episode = podcast->takeFirstEpisode();
         url = episode->getUrl();
 
-        QDir fileDirectory(m_settingsManager->getSaveLocation() + "/"
-            + podcast->getCategory() + "/" + podcast->getName());
+        QDir fileDirectory(QString("%1/%2/%3")
+            .arg(m_settingsManager->getSaveLocation())
+            .arg(podcast->getCategory())
+            .arg(podcast->getName()));
 
         // create the directory to download to.
         if (!fileDirectory.exists()) {
             if (!fileDirectory.mkpath(fileDirectory.path())) {
-                error(tr("Could not create directory:") + " "
-                    + fileDirectory.path() + ", " + tr("to write") + " "
-                    + episode->getUrl().path(), false);
+                error(tr("Could not create directory: %1 to write %2.")
+                    .arg(fileDirectory.path()).arg(episode->getUrl().path()),
+                    false);
 
                 podcast->deleteLater();
 
@@ -293,9 +291,12 @@ void Client::startEpisodeDownload(DownloadItem *item, QUrl url)
         }
 
         // Tell the episode where to download to.
-        episode->setSaveLocation(fileDirectory.absolutePath() + "/"
-            + episode->getUrl().path()
-            .remove(0, episode->getUrl().path().lastIndexOf("/") + 1));
+        // TODO: Handle clases such as
+        // http://place.com/redirect.mp3?real_file_name.mp3
+        episode->setSaveLocation(QString("%1/%2")
+            .arg(fileDirectory.absolutePath())
+            .arg(episode->getUrl().path()
+            .remove(0, episode->getUrl().path().lastIndexOf("/") + 1)));
 
         if (podcast->getEpisodeCount() > 0) {
             m_podcastDownloadQueue.enqueue(podcast);
@@ -318,9 +319,9 @@ void Client::startEpisodeDownload(DownloadItem *item, QUrl url)
         episode->resetWrite();
     }
 
-    verbose(tr("Starting episode download for") + " " + episode->getName()
-        + " " + tr("from") + " " + url.toString() + " "
-        + tr(" and saving to") + " " + episode->getSaveLocation() + tr("."));
+    verbose(tr("Starting episode download for %1 from %2 and saving to %3.")
+        .arg(episode->getName()).arg(url.toString())
+        .arg(episode->getSaveLocation()));
 
     QNetworkReply *reply;
 
@@ -335,8 +336,7 @@ void Client::episodeDownloaded(DownloadItem *item)
     // class hence why there must be a cast to the derived class type.
     PodcastEpisode *episode = static_cast<PodcastEpisode *>(item);
 
-    verbose(tr("Episode") + " " + episode->getName() + " "
-        + tr("downloaded successfully."));
+    verbose(tr("Episode %1 downloaded successfully.").arg(episode->getName()));
 
     m_episodeListing->setDownloaded(episode);
 

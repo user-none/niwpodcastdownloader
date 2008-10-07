@@ -30,8 +30,8 @@ void PodcastListingsParser::parseListingsFile(const QString &listingsFile)
 
     QFile file(listingsFile);
     if (!file.open(QIODevice::ReadOnly)) {
-        emit error(tr("Could not open file") + " " + listingsFile + " "
-            + tr("because") + " " + file.errorString(), true);
+        emit error(tr("Could not open file %1 because %2.").arg(listingsFile)
+            .arg(file.errorString()), true);
         return;
     }
 
@@ -41,10 +41,10 @@ void PodcastListingsParser::parseListingsFile(const QString &listingsFile)
     int errorColumn;
 
     if (!document.setContent(&file, &errorMsg, &errorLine, &errorColumn)) {
-        emit error(tr("Could not parse") + " " + listingsFile + ", "
-            + tr("because") + " " + errorMsg + " " + tr("at line") + " "
-            + QString::number(errorLine) + " " + tr("and column") + " "
-            + QString::number(errorColumn), true);
+        emit error(
+            tr("Could not parse %1 because %2 at line %3 and column %4.")
+            .arg(listingsFile).arg(errorMsg).arg(errorLine).arg(errorColumn),
+            true);
         file.close();
         return;
     }
@@ -52,8 +52,8 @@ void PodcastListingsParser::parseListingsFile(const QString &listingsFile)
 
     QDomElement rootElement = document.firstChildElement("podcasts");
     if (rootElement.isNull()) {
-        emit error(tr("Root element <podcasts> not found in listings file")
-            + ", " + listingsFile , false);
+        emit error(tr("Root element <podcasts> not found in listings file %1.")
+            .arg(listingsFile), false);
         return;
     }
 

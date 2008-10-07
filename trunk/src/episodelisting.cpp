@@ -54,8 +54,8 @@ bool EpisodeListing::open(const QString &file)
 
     // We can't open directories.
     if (fileInfo.isDir()) {
-        emit error(tr("Cannot open") + " " + file + ", " + tr("is Directory"),
-            true);
+        emit error(tr("Cannot open file %1 because it is a directory.")
+            .arg(file), true);
         return false;
     }
     if (!fileInfo.exists()) {
@@ -75,8 +75,8 @@ bool EpisodeListing::open(const QString &file)
     m_db.setDatabaseName(file);
 
     if (!m_db.open()) {
-        emit error(tr("Cannot open") + " " + file + ", "
-            + m_db.lastError().text(), true);
+        emit error(tr("Cannot open file %1 because %2.").arg(file)
+            .arg(m_db.lastError().text()), true);
         return false;
     }
 
@@ -95,8 +95,8 @@ bool EpisodeListing::open(const QString &file)
 
     // Check if the file is a valid episodes database.
     if (!execQuery("SELECT * FROM episodes")) {
-        emit error(tr("Could not open file:") + " " + file + ", "
-            + tr("is not a valid episode list"), true);
+        emit error(tr("Could not open file %1 because it is not a valid"
+            " episode list.").arg(file), true);
         return false;
     }
 
@@ -108,15 +108,14 @@ bool EpisodeListing::isDownloaded(PodcastEpisode *episode)
     // Get the number of times the episode url appears in the database.
     // An episode shouldn't appear in the database more than once but it could
     // happen. More than one entry is not an issue.
-    if (execQuery("SELECT count(*) FROM episodes WHERE url='"
-        + episode->getUrl().toString() + "';"))
+    if (execQuery(QString("SELECT count(*) FROM episodes WHERE url='%1';")
+        .arg(episode->getUrl().toString())))
     {
         if (!m_query->next()) {
             // Something is wrong with the db. The query was successful but we
             // can't get the result.
-            emit error(tr("Could not determine if episode") + " "
-                + episode->getUrl().toString() + ", "
-                + tr("has been downloaded"), true);
+            emit error(tr("Could not determine if episode %1 has been"
+                " downloaded.").arg(episode->getUrl().toString()), true);
         }
         else {
             // If it appears 0 times than it hasn't been downloaded.
@@ -133,8 +132,8 @@ void EpisodeListing::setDownloaded(PodcastEpisode *episode)
 {
     // Make an entry in the database for the episode url.
     if (!isDownloaded(episode)) {
-        execQuery("INSERT INTO episodes (url) values("
-            "'" + episode->getUrl().toString() + "');");
+        execQuery(QString("INSERT INTO episodes (url) values('%1');")
+            .arg(episode->getUrl().toString()));
     }
 }
 
@@ -142,15 +141,15 @@ bool EpisodeListing::execQuery(const QString &query)
 {
     // We can't use a db that hasn't been opened.
     if (!m_db.isOpen()) {
-        emit error(tr("No episode listing file has been opened"), true);
+        emit error(tr("No episode listing file has been opened."), true);
         return false;
     }
 
     // Execute the query setting any errors if unsuccessful.
     if (!m_query->exec(query))
     {
-        emit error(tr("Database Query (") + query + tr(") failed because")
-            + " " + m_query->lastError().text(), false);
+        emit error(tr("Database Query (%1) failed because %2.").arg(query)
+            .arg(m_query->lastError().text()), false);
         return false;
     }
 
