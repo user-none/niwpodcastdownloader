@@ -349,7 +349,7 @@ void Client::episodeDownloaded(DownloadItem *item)
 void Client::verbose(const QString &message)
 {
     if (m_verboseMode) {
-        *m_outStream << message << endl;
+        *m_outStream << "Verbose: " << message << endl;
     }
 }
 
