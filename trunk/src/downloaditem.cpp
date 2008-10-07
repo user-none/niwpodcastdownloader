@@ -77,12 +77,17 @@ void DownloadItem::downloadFinished()
         return;
     }
 
-    if (m_reply->error() != QNetworkReply::NoError
-        || m_reply->attribute(QNetworkRequest::HttpStatusCodeAttribute)
-        .isNull())
+    if (m_reply->error() != QNetworkReply::NoError) {
+        cleanDownload();
+        emit error(this, "Connection failed because "
+            + m_reply->errorString());
+        return;
+    }
+    if (m_reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).isNull())
     {
         cleanDownload();
-        emit error(this, "Connection failed.");
+        emit error(this, "Connection failed because no HTTP status code was"
+            " returned");
         return;
     }
 
@@ -121,6 +126,9 @@ void DownloadItem::downloadFinished()
                 emit error(this, tr("Infinite redirection"));
             }
             break;
+        }
+        // Not Modified
+        case 304: {
         }
         // Other HTTP Status codes.
         default:
