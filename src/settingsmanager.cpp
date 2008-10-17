@@ -37,7 +37,7 @@ SettingsManager::SettingsManager()
         .arg(QDir::homePath())).toString());
 
     // Get the location of the file storing the db storing downloaded episodes.
-    m_downloadedEpisodeListFile = QDir::fromNativeSeparators(
+    m_databaseFile = QDir::fromNativeSeparators(
         value("paths/podcast_episode_db",
         QString("%1/.niw-podcast-downloader/episodes.db")
         .arg(QDir::homePath())).toString());
@@ -88,9 +88,9 @@ QString SettingsManager::getPodcastsFile()
     return m_podcastsListFile;
 }
 
-QString SettingsManager::getDownloadedEpisodeListFile()
+QString SettingsManager::getDatabaseFile()
 {
-    return m_downloadedEpisodeListFile;
+    return m_databaseFile;
 }
 
 int SettingsManager::getThreadCount()
@@ -125,7 +125,7 @@ void SettingsManager::setPodcastsFile(const QString &file)
 
 void SettingsManager::setDownloadedEpisodeListFile(const QString &file)
 {
-    m_downloadedEpisodeListFile = file;
+    m_databaseFile = file;
 }
 
 void SettingsManager::setThreadCount(int count)

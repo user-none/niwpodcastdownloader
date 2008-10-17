@@ -53,6 +53,12 @@ class DownloadItem : public QObject
          * @return The url of the item.
          */
         QUrl getUrl() const;
+        /**
+         * Gets the date when the item was last modified on the server.
+         *
+         * @return A representation of when the item was last modified.
+         */
+        QString getLastModified() const;
 
         /**
          * Sets the name of the item.
@@ -102,6 +108,15 @@ class DownloadItem : public QObject
          */
         void contentMoved(DownloadItem *item, QUrl url);
         /**
+         * This signal is emitted if the requested download has not been
+         * modified since the last time it was downloaded.
+         *
+         * The If-Modified-Since header used to determine if the content has
+         * changed is added to the QNetworkRequest object given to the
+         * QNetworkAccessManager object starting the download.
+         */
+        void notModified(DownloadItem *item);
+        /**
          * This signal is emitted when there is an error condition.
          *
          * @param item this.
@@ -145,6 +160,10 @@ class DownloadItem : public QObject
          * The url to download.
          */
         QUrl m_url;
+        /**
+         * When the item was last modified on the server.
+         */
+        QByteArray m_lastModified;
 
         /**
          * A list of urls used with 301 and 302 content moved responses.
