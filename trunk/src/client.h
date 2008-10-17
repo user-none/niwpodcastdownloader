@@ -188,12 +188,6 @@ class Client : public QObject
          * Output what the application is doing. Useful for testing.
          */
         bool m_verboseMode;
-        /**
-         * Ignore checks for the last modified time of the item.
-         *
-         * Always do a full download.
-         */
-        bool m_ignoreLastModified;
 
         /**
          * The stream to use for writing to the standard output.

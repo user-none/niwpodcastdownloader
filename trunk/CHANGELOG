@@ -1,5 +1,9 @@
 Oct 17, 2008 - John Schember <john@nachtimwald.com>
 
+* Do not remove the reply in PodcastEpisode::downloadSuccessful because
+  it's still needed. PodcastEpisode::cleanDownload will take care of that
+  later.
+* Added config option to ignore not modified responses from the server.
 * Updated documentation.
 
 
