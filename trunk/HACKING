@@ -12,12 +12,6 @@ Patches, suggestions, and comments can submitted to the project page or sent
 to the active author(s) directly.
 
 
-*** Platform Indepence
-
-No platform specific code will be accepted. This is a platform independent
-project and is designed to run on any platform supported by Qt.
-
-
 *** Patches
 
 User standard unified diffs.
@@ -93,7 +87,7 @@ Example:
 
 Use Java Doc style comments for functions and classes.
 
-    Example:    
+    Example:
         /**
          * Short description.
          * Long description (optional).
