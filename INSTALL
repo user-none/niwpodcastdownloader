@@ -28,8 +28,8 @@ Platform specific code is used by deafult on:
 
 *** Compile
 
-$ mkdir build
-$ cmake ../build
+$ cmake ./
+$ make
 
 
 *** Install

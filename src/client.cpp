@@ -428,8 +428,8 @@ void Client::parseOptions()
 
     OptsOption ignoreLastModifiedOption(tr("ignore_not_modified"),
         &m_ignoreLastModified, false, 0, tr("Do a full download of all rss"
-        " feeds. Do not rely on the last modified time to determine if there"
-        " are no new episodes."), "");
+        " feeds. Do not rely on the last modified time the server reports to"
+        " determine if there are no new episodes."), "");
 
     bool writeConfigSet = false;
     OptsOption writeConfigOption(tr("write_config"), &writeConfigSet, false, 0,
