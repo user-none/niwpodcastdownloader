@@ -20,12 +20,14 @@ See FAQ for usage tips.
     Show the version of this application
 -init
     Init mode. Mark all episodes as downloading without downloading any.
--ignore_not_modified
-    Do a full download of all rss feeds. Do not rely on the last modified time
-    the server reports to determine if there are no new episodes.
 -write_config
     Write the default config to disk. This will over write any existing
     configuration settings.
+-filter_explicit
+    Do not download episodes marked as explicit
+-ignore_not_modified
+    Do a full download of all rss feeds. Do not rely on the last modified time
+    the server reports to determine if there are no new episodes.
 -episodes_db    <FILE>
     The episodes database to use.
 -save_location    <PATH>

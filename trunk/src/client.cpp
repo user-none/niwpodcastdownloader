@@ -426,11 +426,6 @@ void Client::parseOptions()
     OptsOption verboseOption(tr("verbose"), &m_verboseMode, false, 0,
         tr("Verbose mode. Be chatty about what is happening."), "");
 
-    OptsOption ignoreLastModifiedOption(tr("ignore_not_modified"),
-        &m_ignoreLastModified, false, 0, tr("Do a full download of all rss"
-        " feeds. Do not rely on the last modified time the server reports to"
-        " determine if there are no new episodes."), "");
-
     bool writeConfigSet = false;
     OptsOption writeConfigOption(tr("write_config"), &writeConfigSet, false, 0,
         tr("Write the default config to disk. This will over write any "
@@ -439,6 +434,11 @@ void Client::parseOptions()
     bool filterExplicit = false;
     OptsOption filterExplicitOption(tr("filter_explicit"), &filterExplicit,
         false, 0, tr("Do not download episodes marked as explicit"), "");
+
+    OptsOption ignoreLastModifiedOption(tr("ignore_not_modified"),
+        &m_ignoreLastModified, false, 0, tr("Do a full download of all rss"
+        " feeds. Do not rely on the last modified time the server reports to"
+        " determine if there are no new episodes."), "");
 
     bool episodesdbSet = false;
     QString episodesdbArg = "";
