@@ -20,6 +20,7 @@
 
 #include <QCoreApplication>
 #include <QDir>
+#include <QFileInfo>
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QStringList>
@@ -27,6 +28,7 @@
 #include <stdlib.h>
 
 #include "client.h"
+#include "configure.h"
 #include "opts.h"
 #include "platform.h"
 #include "podcastlistingsparser.h"
@@ -35,57 +37,30 @@ Client::Client()
 {
     m_errStream = new QTextStream(stderr);
     m_outStream = new QTextStream(stdout);
-    m_episodeListing = new EpisodeListing();
+    m_database = new Database();
     m_networkAccessManager = new QNetworkAccessManager();
     m_activeDownloadCount = 0;
     m_settingsManager = new SettingsManager();
     m_initMode = false;
     m_verboseMode = false;
+    m_ignoreLastModified = false;
 }
 
 Client::~Client()
 {
     delete m_errStream;
     delete m_outStream;
-    delete m_episodeListing;
+    delete m_database;
     delete m_networkAccessManager;
     delete m_settingsManager;
 }
 
 void Client::run()
 {
+    // Any of these functions can cause the application to exit.
     parseOptions();
-
-    connect(m_episodeListing, SIGNAL(error(const QString &, bool)), this,
-        SLOT(error(const QString &, bool)));
-
-    verbose(tr("Opening episodes database at %1.").arg(m_settingsManager
-        ->getDownloadedEpisodeListFile()));
-    // If the file cannot be opened a fatal error will be emitted and the
-    // application will exit.
-    m_episodeListing->open(m_settingsManager->getDownloadedEpisodeListFile());
-
-    verbose(tr("Opening podcast listings file at %1.").arg(m_settingsManager
-        ->getPodcastsFile()));
-    // Get the podcast rss urls from the listing file.
-    PodcastListingsParser podcastListingsParser;
-    connect(&podcastListingsParser, SIGNAL(error(const QString &, bool)),
-        this, SLOT(error(const QString &, bool)));
-    podcastListingsParser.parseListingsFile(
-        m_settingsManager->getPodcastsFile());
-
-    // Add the valid podcasts to the rss queue so their rss feeds can be
-    // downloaded.
-    Q_FOREACH (Podcast *podcast, podcastListingsParser.getPodcasts()) {
-        m_podcastRSSQueue.enqueue(podcast);
-    }
-
-    verbose(tr("Found %1 podcasts.").arg(m_podcastRSSQueue.size()));
-
-    // Exit if there are no podcasts.
-    if (m_podcastRSSQueue.size() == 0) {
-        exit(0);
-    }
+    loadDatabase();
+    loadPodcasts();
 
     // Start downloading the rss feeds. The number of downloads started is
     // the minimum of the user defined download thread count and the number
@@ -175,16 +150,28 @@ void Client::startRSSDownload(DownloadItem *item, QUrl url)
     // hence why there must be a cast to the derived class type.
     Podcast *podcast = static_cast<Podcast *>(item);
 
+    QNetworkRequest request = getNetworkRequest();
+
     // New podcast download.
     if (!podcast) {
         m_activeDownloadCount++;
         podcast = m_podcastRSSQueue.dequeue();
         url = podcast->getUrl();
+        QString lastModified = m_database->getLastModified(podcast);
+
+        if (!lastModified.isEmpty() && !m_ignoreLastModified) {
+            request.setRawHeader("If-Modified-Since", lastModified.toAscii());
+        }
 
         connect(podcast, SIGNAL(contentMoved(DownloadItem *, QUrl)), this,
             SLOT(startRSSDownload(DownloadItem *, QUrl)));
+
+        // downloadError, downloadItemNotModified, and finished are exclusive.
+        // Only one will be called.
         connect(podcast, SIGNAL(error(DownloadItem *, QString)), this,
             SLOT(downloadError(DownloadItem *, QString)));
+        connect(podcast, SIGNAL(notModified(DownloadItem *)), this,
+            SLOT(downloadItemNotModified(DownloadItem *)));
         connect(podcast, SIGNAL(finished(DownloadItem *)), this,
             SLOT(episodesReady(DownloadItem *)));
     }
@@ -195,7 +182,8 @@ void Client::startRSSDownload(DownloadItem *item, QUrl url)
     QNetworkReply *reply;
 
     // Start the download.
-    reply = m_networkAccessManager->get(QNetworkRequest(url));
+    request.setUrl(url);
+    reply = m_networkAccessManager->get(request);
     podcast->setNetworkReply(reply);
 }
 
@@ -216,7 +204,7 @@ void Client::episodesReady(DownloadItem *item)
             if (!m_settingsManager->getFilterExplicit()
                 || !episode->isExplicit())
             {
-                m_episodeListing->setDownloaded(episode);
+                m_database->setDownloaded(episode);
             }
         }
         podcast->clearEpisodeList();
@@ -230,7 +218,7 @@ void Client::episodesReady(DownloadItem *item)
         podcast->truncateEpisodes(m_settingsManager->getRecentEpisodeCount());
         Q_FOREACH (PodcastEpisode *episode, podcast->getEpisodes()) {
             // Remove downloaded and explicit if we are filtering explicit.
-            if (m_episodeListing->isDownloaded(episode)
+            if (m_database->isDownloaded(episode)
                 || (m_settingsManager->getFilterExplicit()
                 && episode->isExplicit()))
             {
@@ -245,6 +233,12 @@ void Client::episodesReady(DownloadItem *item)
             m_podcastDownloadQueue.enqueue(podcast);
         }
         else {
+            // Set the modified date for the rss feed. We are setting it here
+            // becuase there are no episodes to download. Otherwise the date
+            // will be set when the last episode download for the particular
+            // podcast starts.
+            m_database->setLastModified(podcast);
+
             podcast->deleteLater();
         }
     }
@@ -258,6 +252,8 @@ void Client::startEpisodeDownload(DownloadItem *item, QUrl url)
     // item is really a PodcastEpisode object. The signal is set in the base
     // class hence why there must be a cast to the derived class type.
     PodcastEpisode *episode = static_cast<PodcastEpisode *>(item);
+
+    QNetworkRequest request = getNetworkRequest();
 
     // New episode download.
     if (!episode) {
@@ -274,8 +270,10 @@ void Client::startEpisodeDownload(DownloadItem *item, QUrl url)
         // create the directory to download to.
         if (!fileDirectory.exists()) {
             if (!fileDirectory.mkpath(fileDirectory.path())) {
-                error(tr("Could not create directory: %1 to write %2.")
-                    .arg(fileDirectory.path()).arg(episode->getUrl().path()),
+                error(tr("Could not create directory: %1 to write %2 for %3.")
+                    .arg(fileDirectory.path())
+                    .arg(QFileInfo(episode->getUrl().toString()).fileName())
+                    .arg(episode->getName()),
                     false);
 
                 podcast->deleteLater();
@@ -291,17 +289,19 @@ void Client::startEpisodeDownload(DownloadItem *item, QUrl url)
         }
 
         // Tell the episode where to download to.
-        // TODO: Handle clases such as
-        // http://place.com/redirect.mp3?real_file_name.mp3
         episode->setSaveLocation(QString("%1/%2")
             .arg(fileDirectory.absolutePath())
-            .arg(episode->getUrl().path()
-            .remove(0, episode->getUrl().path().lastIndexOf("/") + 1)));
+            .arg(QFileInfo(episode->getUrl().toString()).fileName()));
 
         if (podcast->getEpisodeCount() > 0) {
             m_podcastDownloadQueue.enqueue(podcast);
         }
         else {
+            // Set the modified date for the rss feed.
+            // TODO: What happens if the download fail? It won't be
+            // re-downloaded until next time there are new items.
+            m_database->setLastModified(podcast);
+
             podcast->deleteLater();
         }
 
@@ -317,6 +317,8 @@ void Client::startEpisodeDownload(DownloadItem *item, QUrl url)
     else {
         // Set the write buffer for the episode to the beginning of the file.
         episode->resetWrite();
+        // TODO:
+        // re-calculate the file name and change the download file name.
     }
 
     verbose(tr("Starting episode download for %1 from %2 and saving to %3.")
@@ -326,7 +328,8 @@ void Client::startEpisodeDownload(DownloadItem *item, QUrl url)
     QNetworkReply *reply;
 
     // Start the download.
-    reply = m_networkAccessManager->get(QNetworkRequest(url));
+    request.setUrl(url);
+    reply = m_networkAccessManager->get(request);
     episode->setNetworkReply(reply);
 }
 
@@ -338,12 +341,73 @@ void Client::episodeDownloaded(DownloadItem *item)
 
     verbose(tr("Episode %1 downloaded successfully.").arg(episode->getName()));
 
-    m_episodeListing->setDownloaded(episode);
+    m_database->setDownloaded(episode);
 
     episode->deleteLater();
 
     m_activeDownloadCount--;
     downloadNext();
+}
+
+void Client::downloadItemNotModified(DownloadItem *item)
+{
+    verbose(tr("%1 at %2 has not been modified since the last time it was"
+        "downloaded.").arg(item->getName()).arg(item->getUrl().toString()));
+
+    item->deleteLater();
+
+    m_activeDownloadCount--;
+    downloadNext();
+}
+
+
+void Client::loadDatabase()
+{
+    connect(m_database, SIGNAL(error(const QString &, bool)), this,
+        SLOT(error(const QString &, bool)));
+
+    verbose(tr("Opening database at %1.").arg(m_settingsManager
+        ->getDatabaseFile()));
+    // If the file cannot be opened it is fatal.
+    if (!m_database->open(m_settingsManager->getDatabaseFile())) {
+        error(m_database->openError(), true);
+    }
+}
+
+void Client::loadPodcasts()
+{
+    verbose(tr("Opening podcast listings file at %1.").arg(m_settingsManager
+        ->getPodcastsFile()));
+    // Get the podcast rss urls from the listing file.
+    PodcastListingsParser podcastListingsParser;
+    connect(&podcastListingsParser, SIGNAL(error(const QString &, bool)),
+        this, SLOT(error(const QString &, bool)));
+    podcastListingsParser.parseListingsFile(
+        m_settingsManager->getPodcastsFile());
+
+    // Add the valid podcasts to the rss queue so their rss feeds can be
+    // downloaded.
+    Q_FOREACH (Podcast *podcast, podcastListingsParser.getPodcasts()) {
+        m_podcastRSSQueue.enqueue(podcast);
+    }
+
+    verbose(tr("Found %1 podcasts.").arg(m_podcastRSSQueue.size()));
+
+    // Exit if there are no podcasts.
+    if (m_podcastRSSQueue.size() == 0) {
+        exit(0);
+    }
+}
+
+QNetworkRequest Client::getNetworkRequest()
+{
+    QNetworkRequest request;
+
+    request.setRawHeader("User-Agent", QString("%1 %2")
+        .arg(QCoreApplication::applicationName())
+        .arg(Configure::applicationVersion).toAscii());
+
+    return request;
 }
 
 void Client::verbose(const QString &message)
@@ -356,11 +420,16 @@ void Client::verbose(const QString &message)
 void Client::parseOptions()
 {
     OptsOption initOption(tr("init"), &m_initMode, false, 0,
-        tr("Init mode. Mark all episodes as downloading without downloading "
+        tr("Init mode. Mark all episodes as downloaded without downloading "
         "any."), "");
 
     OptsOption verboseOption(tr("verbose"), &m_verboseMode, false, 0,
         tr("Verbose mode. Be chatty about what is happening."), "");
+
+    OptsOption ignoreLastModifiedOption(tr("ignore_not_modified"),
+        &m_ignoreLastModified, false, 0, tr("Do a full download of all rss"
+        " feeds. Do not rely on the last modified time to determine if there"
+        " are no new episodes."), "");
 
     bool writeConfigSet = false;
     OptsOption writeConfigOption(tr("write_config"), &writeConfigSet, false, 0,
@@ -408,6 +477,7 @@ void Client::parseOptions()
 
     opts.addOption(initOption);
     opts.addOption(verboseOption);
+    opts.addOption(ignoreLastModifiedOption);
     opts.addOption(writeConfigOption);
     opts.addOption(episodesdbOption);
     opts.addOption(saveLocationOption);

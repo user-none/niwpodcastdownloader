@@ -37,6 +37,11 @@ QUrl DownloadItem::getUrl() const
     return m_url;
 }
 
+QString DownloadItem::getLastModified() const
+{
+    return QString::fromAscii(m_lastModified);
+}
+
 void DownloadItem::setName(const QString &name)
 {
     m_name = name;
@@ -78,7 +83,7 @@ void DownloadItem::downloadFinished()
         return;
     }
 
-    // Check for error conditions.
+    // The error condition check prevents a seg fault.
     if (m_reply->error() != QNetworkReply::NoError) {
         cleanDownload();
         // Do not use m_reply->errorString() to display a more complete error
@@ -102,8 +107,9 @@ void DownloadItem::downloadFinished()
         case 200:
             // downloadSuccessful must be called before cleanDownload.
             // cleanDownload must be called before the finished signal is
-            // emitted.
+            // emitted. downloadSuccessful is determined by the subclass.
             if (downloadSuccessful()) {
+                m_lastModified = m_reply->rawHeader("Last-Modified");
                 cleanDownload();
                 emit finished(this);
             }
@@ -132,15 +138,31 @@ void DownloadItem::downloadFinished()
         }
         // Not Modified
         case 304: {
+            cleanDownload();
+            emit notModified(this);
+            break;
         }
         // Other HTTP Status codes.
         default:
-            cleanDownload();
+            int errorCode = 0;
+            QString errorPhrase = "";
+
+            if (!m_reply->attribute(
+                QNetworkRequest::HttpStatusCodeAttribute).isNull())
+            {
+                errorCode = m_reply->attribute(
+                    QNetworkRequest::HttpStatusCodeAttribute).toInt();
+            }
+            if (!m_reply->attribute(
+                QNetworkRequest::HttpReasonPhraseAttribute).isNull())
+            {
+                errorPhrase = m_reply->attribute(
+                    QNetworkRequest::HttpReasonPhraseAttribute).toString();
+            }
+
             emit error(this, tr("Http status %1: %2.")
-                .arg(m_reply->attribute(
-                QNetworkRequest::HttpStatusCodeAttribute).toString())
-                .arg(m_reply->attribute(
-                QNetworkRequest::HttpReasonPhraseAttribute).toString()));
+                .arg(errorCode)
+                .arg(errorPhrase));
             break;
     }
 }

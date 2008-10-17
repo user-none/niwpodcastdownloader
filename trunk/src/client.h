@@ -21,12 +21,14 @@
 #ifndef CLIENT_H
 #define CLIENT_H
 
+#include <QByteArray>
 #include <QNetworkAccessManager>
+#include <QNetworkRequest>
 #include <QObject>
 #include <QQueue>
 #include <QTextStream>
 
-#include "episodelisting.h"
+#include "database.h"
 #include "podcast.h"
 #include "podcastepisode.h"
 #include "settingsmanager.h"
@@ -135,7 +137,35 @@ class Client : public QObject
          */
         void episodeDownloaded(DownloadItem *item);
 
+        /**
+         * The download item has not been modified since the last time it was
+         * download.
+         *
+         * This slot is best used when linked to a Podcast object and
+         * downloading its rss feed. This will keep the client from downloading
+         * extra data and processing data when there are no new items.
+         *
+         * @param item The download item returning its status as not modified.
+         */
+        void downloadItemNotModified(DownloadItem *item);
+
     private:
+        /**
+         * Open the database file and make it ready for use.
+         */
+        void loadDatabase();
+        /**
+         * Load the podcasts from the listings file into the rss queue so their
+         * rss feeds can be checked for new episodes.
+         */
+        void loadPodcasts();
+        /**
+         * Gets a network request object and populates it with necessary
+         * headers.
+         *
+         * @return A network requeset.
+         */
+        QNetworkRequest getNetworkRequest();
         /**
          * Check and write message for verbose mode.
          */
@@ -158,6 +188,12 @@ class Client : public QObject
          * Output what the application is doing. Useful for testing.
          */
         bool m_verboseMode;
+        /**
+         * Ignore checks for the last modified time of the item.
+         *
+         * Always do a full download.
+         */
+        bool m_ignoreLastModified;
 
         /**
          * The stream to use for writing to the standard output.
@@ -174,7 +210,7 @@ class Client : public QObject
          * Check if an episode has been downloaded and set episodes as
          * downloaded.
          */
-        EpisodeListing *m_episodeListing;
+        Database *m_database;
 
         /**
          * Starts downloads of DownloadItems.

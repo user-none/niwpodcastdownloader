@@ -22,8 +22,8 @@ ENDIF(NO_PLATFORM)
 
 SET(SRC_MOC_HEADERS
     client.h
+    database.h
     downloaditem.h
-    episodelisting.h
     podcast.h
     podcastepisode.h
     podcastlistingsparser.h
@@ -31,8 +31,8 @@ SET(SRC_MOC_HEADERS
 SET(SRC_CPP
     client.cpp
     configure.cpp
+    database.cpp
     downloaditem.cpp
-    episodelisting.cpp
     main.cpp
     opts.cpp
     platform.cpp

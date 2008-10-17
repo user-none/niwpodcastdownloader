@@ -1,3 +1,18 @@
+Oct 16, 2008 - John Schember <john@nachtimwald.com>
+
+* Check last modified header when downloading RSS feeds and do not download
+  the feed if it has not been modified since it was last checked.
+* New database format.
+* Framework to update the database for when new features are added.
+* Opts displays name of the executable instead of the application's internal
+  name.
+* Correctly sets file name when dealing with redirects.
+* Re-structure some client code.
+* User agent is set for downloads. Server will see the name of this application
+  as the downloading client.
+* Fixed a typo.
+
+
 Oct 6, 2008 - John Schember <john@nachtimwald.com>
 
 * Signify which messages are for verbose output.

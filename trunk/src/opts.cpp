@@ -19,13 +19,14 @@
  *****************************************************************************/
 
 #include <QCoreApplication>
+#include <QFileInfo>
 #include <QTextStream>
 
 #include <stdlib.h>
 
-#include "opts.h"
-#include "platform.h"
 #include "configure.h"
+#include "platform.h"
+#include "opts.h"
 
 OptsOption::OptsOption(const QString &name, bool *setFlag, bool argumentRequried,
     QString *argumentSet, const QString &helpMessage,
@@ -153,9 +154,11 @@ void Opts::unknownOption(const QString &option)
 {
     QTextStream out(stdout);
 
-    out << QCoreApplication::applicationName() << ": " << tr("invalid option")
+    out << QFileInfo(QCoreApplication::applicationFilePath()).fileName()
+        << ": " << tr("invalid option")
         << " -- " << option << endl;
-    out << tr("Try") << "`" << QCoreApplication::applicationName()
+    out << tr("Try") << "`"
+        << QFileInfo(QCoreApplication::applicationFilePath()).fileName()
         << " " << Platform::commandLineArgumentFlag() << m_optionHelp
         << "' " << tr("for more information.") << endl;
 
@@ -167,10 +170,12 @@ void Opts::missingArgument(const OptsOption &option)
 {
     QTextStream out(stdout);
 
-    out << QCoreApplication::applicationName() << ": " << tr("option")
+    out << QFileInfo(QCoreApplication::applicationFilePath()).fileName()
+        << ": " << tr("option")
         << " " << option.getName() << " " << tr("requries argument") << " "
         << option.getArgumentString() << endl;
-    out << tr("Try") << "`" << QCoreApplication::applicationName()
+    out << tr("Try") << "`"
+        << QFileInfo(QCoreApplication::applicationFilePath()).fileName()
         << " " << Platform::commandLineArgumentFlag() << m_optionHelp
         << "' " << tr("for more information.") << endl;
 
@@ -181,7 +186,8 @@ void Opts::showHelp()
 {
     QTextStream out(stdout);
 
-    out << QCoreApplication::applicationName() << " [" << tr("Options") << "]"
+    out << QFileInfo(QCoreApplication::applicationFilePath()).fileName()
+        << " [" << tr("Options") << "]"
         << endl;
     out << endl;
 

@@ -18,35 +18,26 @@
  *   <http://www.gnu.org/licenses/>.                                         *
  *****************************************************************************/
 
-#ifndef EPISODELISTING_H
-#define EPISODELISTING_H
+#ifndef DATABASE_H
+#define DATABASE_H
 
 #include <QObject>
 #include <QSqlDatabase>
 #include <QSqlQuery>
 
+#include "podcast.h"
 #include "podcastepisode.h"
 
-/**
- * Get and set the status of a PodcastEpisode.
- *
- * Checks if a PodcastEpisode has been download. Also, can set if a
- * PodcastEpisode as having been downloaded. Checking and setting is based
- * on the url associated with the episode.
- *
- * This class is not thread safe. This is because Qt does not allow SQL
- * connections to be moved between threads.
- */
-class EpisodeListing : public QObject
+class Database : public QObject
 {
     Q_OBJECT
 
     public:
-        EpisodeListing();
-        ~EpisodeListing();
+        Database();
+        ~Database();
 
         /**
-         * Open the downloaded episode db.
+         * Open the database.
          *
          * @param file The db file to open.
          *
@@ -54,11 +45,22 @@ class EpisodeListing : public QObject
          */
         bool open(const QString &file);
         /**
+         * The error associated with a failed open.
+         *
+         * The error can include failure to open, update, or read. All other
+         * errors, mainly sql query errors, will be emitted as an error signal.
+         *
+         * @return A human readable string representing the error if one has
+         * occurred. Otherwise an empty string is returned.
+         */
+        QString openError();
+
+        /**
          * Check if a PodcastEpisode has been previously downloaded.
          *
          * @param episode The podcast episode to check.
          *
-         * @return True if the episode has previously been downloaded. 
+         * @return True if the episode has previously been downloaded.
          */
         bool isDownloaded(PodcastEpisode *episode);
         /**
@@ -67,6 +69,21 @@ class EpisodeListing : public QObject
          * @param episode The episode to set as downloaded.
          */
         void setDownloaded(PodcastEpisode *episode);
+
+        /**
+         * Gets the last modified date of the rss feed.
+         *
+         * @param podcast The podcast to get the modified date for.
+         *
+         * @return The last modified date.
+         */
+        QString getLastModified(Podcast *podcast);
+        /**
+         * Sets the last modified date of the rss feed.
+         *
+         * @param podcast The podcast to set the modified date for.
+         */
+        void setLastModified(Podcast *podcast);
 
     signals:
         /**
@@ -79,6 +96,26 @@ class EpisodeListing : public QObject
         void error(const QString &error, bool fatal);
 
     private:
+        /**
+         * Create the default tables for an empty database.
+         *
+         * @return True if the database was created successfully.
+         */
+        bool createDefaultDb();
+        /**
+         * Verify the db is valid.
+         *
+         * @return True if the database is valid.
+         */
+        bool verifyDb();
+        /**
+         * Update the database to the latest version.
+         *
+         * @param version The current version of the db.
+         *
+         * @return True if the database was successfully updated.
+         */
+        bool updateDb(int version);
         /**
          * Executes a SQLite query.
          *
@@ -100,6 +137,22 @@ class EpisodeListing : public QObject
          * Object used for executing queries on the database.
          */
         QSqlQuery *m_query;
+
+        /**
+         * The error message associated with an error opening the database.
+         */
+        QString m_openError;
+
+        /**
+         * A magical id written to the db used to verify that the db is valid.
+         */
+        static const QString dbID;
+        /**
+         * The version of the db.
+         *
+         * Used to verify that this verison of the application can use the db.
+         */
+        static const int dbVersion;
 };
 
-#endif /* EPISODELISTING_H */
+#endif /* DATABASE_H */

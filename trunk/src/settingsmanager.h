@@ -55,11 +55,11 @@ class SettingsManager : private QSettings
         QString getPodcastsFile();
         /**
          * The file that lists the previously downloaded episodes for all
-         * podcasts.
+         * podcasts and the last modified date for podcast rss feeds.
          *
-         * @return The episode listing file including the full path.
+         * @return The database file including the full path.
          */
-        QString getDownloadedEpisodeListFile();
+        QString getDatabaseFile();
         /**
          * The number of download threads that should be used.
          *
@@ -145,9 +145,10 @@ class SettingsManager : private QSettings
         QString m_podcastsListFile;
         /**
          * The sqlite db file name with path that is used for checking and
-         * setting downloaded episodes as downloaded.
+         * setting downloaded episodes as downloaded. Also checks and sets
+         * The last modified date for podcast rss feeds.
          */
-        QString m_downloadedEpisodeListFile;
+        QString m_databaseFile;
         /**
          * The maximum number of simultaneous downloads to run at one time.
          */
