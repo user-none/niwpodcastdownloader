@@ -87,6 +87,13 @@ class SettingsManager : private QSettings
          * @return True if explicit episodes should be ignored.
          */
         bool getFilterExplicit();
+        /**
+         * Should the not modifided response from the server be ignored.
+         *
+         * @return True if the not modified response from the server should be
+         * ignored.
+         */
+        bool getIgnoreNotModified();
 
         /**
          * Sets the location that podcasts should be saved in.
@@ -133,6 +140,13 @@ class SettingsManager : private QSettings
          * @param filterExplicit True if explicit episodes should be ignored.
          */
         void setFilterExplicit(bool filterExplicit);
+        /**
+         * Should the not modifided response from the server be ignored.
+         *
+         * @param ignore True if the not modified response from the server should be
+         * ignored.
+         */
+        void setIgnoreNotModified(bool ignore);
 
     private:
         /**
@@ -166,6 +180,10 @@ class SettingsManager : private QSettings
          * Whether explicit episodes should be ignored;
          */
         bool m_filterExplicit;
+        /**
+         * Whether not modifided responses should be ignored.
+         */
+        bool m_ignoreNotModified;
 };
 
 #endif /* SETTINGSMANAGER_H */

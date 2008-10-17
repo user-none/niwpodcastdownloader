@@ -132,10 +132,6 @@ bool PodcastEpisode::downloadSuccessful()
         delete m_file;
         m_file = 0;
     }
-    if (m_reply) {
-        m_reply->close();
-        m_reply = 0;
-    }
 
     return true;
 }

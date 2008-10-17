@@ -43,7 +43,6 @@ Client::Client()
     m_settingsManager = new SettingsManager();
     m_initMode = false;
     m_verboseMode = false;
-    m_ignoreLastModified = false;
 }
 
 Client::~Client()
@@ -159,7 +158,9 @@ void Client::startRSSDownload(DownloadItem *item, QUrl url)
         url = podcast->getUrl();
         QString lastModified = m_database->getLastModified(podcast);
 
-        if (!lastModified.isEmpty() && !m_ignoreLastModified) {
+        if (!lastModified.isEmpty()
+            && !m_settingsManager->getIgnoreNotModified())
+        {
             request.setRawHeader("If-Modified-Since", lastModified.toAscii());
         }
 
@@ -435,8 +436,9 @@ void Client::parseOptions()
     OptsOption filterExplicitOption(tr("filter_explicit"), &filterExplicit,
         false, 0, tr("Do not download episodes marked as explicit"), "");
 
-    OptsOption ignoreLastModifiedOption(tr("ignore_not_modified"),
-        &m_ignoreLastModified, false, 0, tr("Do a full download of all rss"
+    bool ignoreNotModified = false;
+    OptsOption ignoreNotModifiedOption(tr("ignore_not_modified"),
+        &ignoreNotModified, false, 0, tr("Do a full download of all rss"
         " feeds. Do not rely on the last modified time the server reports to"
         " determine if there are no new episodes."), "");
 
@@ -477,8 +479,9 @@ void Client::parseOptions()
 
     opts.addOption(initOption);
     opts.addOption(verboseOption);
-    opts.addOption(ignoreLastModifiedOption);
     opts.addOption(writeConfigOption);
+    opts.addOption(filterExplicitOption);
+    opts.addOption(ignoreNotModifiedOption);
     opts.addOption(episodesdbOption);
     opts.addOption(saveLocationOption);
     opts.addOption(threadsOption);
@@ -496,6 +499,9 @@ void Client::parseOptions()
     }
     if (filterExplicit) {
         m_settingsManager->setFilterExplicit(true);
+    }
+    if (ignoreNotModified) {
+        m_settingsManager->setIgnoreNotModified(true);
     }
     if (episodesdbSet) {
         m_settingsManager->setDownloadedEpisodeListFile(episodesdbArg);

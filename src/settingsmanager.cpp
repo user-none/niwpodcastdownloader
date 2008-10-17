@@ -60,6 +60,9 @@ SettingsManager::SettingsManager()
 
     // Whether explict episodes should be filtered.
     m_filterExplicit = value("advanced/filter_explicit", false).toBool();
+
+    // Whether the servers not modified response should be ignored.
+    m_ignoreNotModified = value("network/ignore_not_modified", false).toBool();
 }
 
 void SettingsManager::writeDefaultConfig()
@@ -76,6 +79,7 @@ void SettingsManager::writeDefaultConfig()
     setValue("advanced/recent_episode_count", 0);
     setValue("advanced/minimum_free_space", 0);
     setValue("advanced/filter_explicit", 0);
+    setValue("network/ignore_not_modified", 0);
 }
 
 QString SettingsManager::getSaveLocation()
@@ -113,6 +117,11 @@ bool SettingsManager::getFilterExplicit()
     return m_filterExplicit;
 }
 
+bool SettingsManager::getIgnoreNotModified()
+{
+    return m_ignoreNotModified;
+}
+
 void SettingsManager::setSaveLocation(const QString &location)
 {
     m_saveLocation = location;
@@ -146,4 +155,9 @@ void SettingsManager::setMinimumFreeDiskSpace(qlonglong size)
 void SettingsManager::setFilterExplicit(bool filterExplicit)
 {
     m_filterExplicit = filterExplicit;
+}
+
+void SettingsManager::setIgnoreNotModified(bool ignore)
+{
+    m_ignoreNotModified = ignore;
 }
