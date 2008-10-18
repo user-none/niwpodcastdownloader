@@ -1,0 +1,31 @@
+*** Classes
+
+Client - The main client that runs.
+Database - Manages the database that stores persistent data.
+DownloadItem - The base class for Podcast and PodcastEpisode. It implements
+    the functionality for downloading.
+Platform - Anything that is tied to a specific platform.
+Podcast - A podcast. Holds information about the podcast and a list of
+    episodes. Also, allows for the manipulation of the episode list.
+PodcastEpisode - A podcast episode. Holds informaiton about an episode.
+PodcastListingsParser - Generates a list of podcasts from a local xml file.
+SettingsManager - Gets configuration settings.
+
+
+*** Design
+
+* Parse the command line arguments overriding any configuration settings.
+* Parse the xml list of podcasts.
+* Add podcasts to a podcast to parse rss queue.
+* Download and parse the rss for the podcast to get the available episodes if
+  the server reports there have been changes to the feed.
+* Remove any episodes that have been downloaded from the podcast.
+* Truncate the episode list based on user settings.
+* Add the podcast to a download queue.
+* Download the podcast episodes in a round robin fashion.
+  - Take the first podcast in the queue.
+  - Take the first episode from the podcast.
+  - Place the podcast in the back of the download queue if it has more
+    episodes.
+* Podcasts are downloaded in parallel dependent on user settings.
+* Write the episode to the completed database.
