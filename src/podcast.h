@@ -57,6 +57,20 @@ class Podcast : public DownloadItem
          */
         bool isInit();
         /**
+         * Should the not modified response form the server be ignored.
+         *
+         * This is dependant on the Last-Modified and If-Modified-Since
+         * headers. Not all servers report the Last-Modified header and not
+         * all servers report it correctly. Therefore this can be disabled on
+         * a per podcast basis if necessary.
+         *
+         * @return True if the downloader should ignore the not modified
+         * response from the server and verify that there are no new episodes
+         * by downloading and parsing the RSS feed.
+         */
+        bool isIgnoreNotModified();
+
+        /**
          * Gets the category of the podcast.
          *
          * @return The category. An empty string if no category has been set.
@@ -92,6 +106,18 @@ class Podcast : public DownloadItem
          * @param init True if the podcast should be marked as needing init.
          */
         void setInit(bool init);
+        /**
+         * Markst he podcast as wanting to ignore the not modified (304)
+         * response from the server.
+         *
+         * Instead the podcast should download its RSS feed and determine if
+         * there are no new episodes by parsing the feed.
+         *
+         * @param ignore True if the podcast should ignore the not modified
+         * response.
+         */
+        void setIgnoreNotModified(bool ignore);
+
         /**
          * Sets the category of the podcast.
          *
@@ -158,9 +184,14 @@ class Podcast : public DownloadItem
          */
         QList<PodcastEpisode *> m_episodes;
         /**
-         * init mode.
+         * Init mode.
          */
         bool m_init;
+        /**
+         * Do not use the Last-Modified time when determining if their are new
+         * episodes.
+         */
+        bool m_ignoreNotModified;
 };
 
 #endif /* PODCAST_H */

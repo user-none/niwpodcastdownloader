@@ -71,6 +71,11 @@ void PodcastListingsParser::parseListingsFile(const QString &listingsFile)
             else if (dataElement.tagName().trimmed().toLower() == "init") {
                 podcast->setInit(true);
             }
+            else if (dataElement.tagName().trimmed().toLower()
+            	== "ignore_not_modified")
+            {
+            	podcast->setIgnoreNotModified(true);
+            }
             else if (dataElement.tagName().trimmed().toLower() == "category") {
                 podcast->setCategory(dataElement.text());
             }

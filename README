@@ -7,7 +7,7 @@ niwpodcastdownloader - Your favorite casts at the ready.
 
 See INSTALL for requirements, build and install instructions.
 
-See STRUCTURE for configuation options and the design of the application.
+See STRUCTURE for configuration options and the design of the application.
 
 See FAQ for usage tips.
 
@@ -74,6 +74,7 @@ Sample:
     <item>
         <name>Mac Murphy Pi</name>
         <init />
+        <ignore_not_modified />
         <url>http://feeds.feedburner.com/MackMurphyPi</url>
     </item>
 </podcasts>
@@ -84,5 +85,9 @@ Requried in <item>:
 Optional:
     * <category></category>
     * <init />
+    * <ignore_not_modified />
 
 <init /> will mark all episodes as downloaded without downloading any.
+<ignore_not_modified /> will cause the RSS feed to be downloaded and parsed
+    to determine if there are new episodes instead of relying on the servers
+    Not Modified (304) response.

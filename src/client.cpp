@@ -159,7 +159,8 @@ void Client::startRSSDownload(DownloadItem *item, QUrl url)
         QString lastModified = m_database->getLastModified(podcast);
 
         if (!lastModified.isEmpty()
-            && !m_settingsManager->getIgnoreNotModified())
+            && !m_settingsManager->getIgnoreNotModified()
+            && !podcast->isIgnoreNotModified())
         {
             request.setRawHeader("If-Modified-Since", lastModified.toAscii());
         }

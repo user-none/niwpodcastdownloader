@@ -1,5 +1,6 @@
 Oct 17, 2008 - John Schember <john@nachtimwald.com>
 
+* Per podcast setting to ignore the last modified response from the server.
 * Do not remove the reply in PodcastEpisode::downloadSuccessful because
   it's still needed. PodcastEpisode::cleanDownload will take care of that
   later.
