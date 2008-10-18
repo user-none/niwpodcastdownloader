@@ -28,11 +28,17 @@ Podcast::Podcast()
 {
     m_category = "";
     m_init = false;
+    m_ignoreNotModified = false;
 }
 
 bool Podcast::isInit()
 {
     return m_init;
+}
+
+bool Podcast::isIgnoreNotModified()
+{
+	return m_ignoreNotModified;
 }
 
 QString Podcast::getCategory() const
@@ -61,6 +67,11 @@ PodcastEpisode* Podcast::takeFirstEpisode()
 void Podcast::setInit(bool init)
 {
     m_init = init;
+}
+
+void Podcast::setIgnoreNotModified(bool ignore)
+{
+	m_ignoreNotModified = ignore;
 }
 
 void Podcast::setCategory(const QString &category)
