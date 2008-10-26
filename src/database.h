@@ -28,6 +28,13 @@
 #include "podcast.h"
 #include "podcastepisode.h"
 
+/**
+ * All database manipulation is handled by this class.
+ *
+ * The database holds non-settings data that needs to be accessed across
+ * sessions. Database manipulation is encapsulated here to make it easier to
+ * change the database type if necessary.
+ */
 class Database : public QObject
 {
     Q_OBJECT

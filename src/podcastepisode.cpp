@@ -148,7 +148,11 @@ void PodcastEpisode::cleanDownload()
         m_reply = 0;
     }
 
+    // If the download was successful the file will have been closed already
+    // so deleting the file here won't delete it if it was a successful
+    // download.
     if (m_file) {
+        m_file->close();
         m_file->remove();
         delete m_file;
         m_file = 0;
