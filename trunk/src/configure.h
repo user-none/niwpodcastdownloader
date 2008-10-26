@@ -23,6 +23,9 @@
 
 #include <QString>
 
+/**
+ * Application wide information that is set by the build system.
+ */
 class Configure
 {
     public:
